@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1210" viewBox="0 0 1560 1210" role="img" aria-labelledby="title desc">
+  <title id="title">Diagrama entidad–relación del onboarding bancario</title>
+  <desc id="desc">Diagrama de tablas clientes, domicilios, cuentas y usuarios, con tipos de datos, llaves y relaciones.</desc>
+  <defs>
+    <style>
+      text { font-family: "Segoe UI", Arial, sans-serif; fill: #172033; }
+      .title { font-size: 30px; font-weight: 700; }
+      .subtitle { font-size: 15px; fill: #536179; }
+      .card { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+      .head { fill: #173b68; }
+      .headText { font-size: 19px; font-weight: 700; fill: #ffffff; }
+      .colHead { fill: #eaf0f7; }
+      .colText { font-size: 12px; font-weight: 700; fill: #41516a; }
+      .field { font-size: 13px; font-weight: 600; }
+      .type { font-size: 12px; fill: #35445a; }
+      .key { font-size: 12px; fill: #35445a; }
+      .rowLine { stroke: #e4e9f0; stroke-width: 1; }
+      .rel { fill: none; stroke: #2874a6; stroke-width: 2.5; }
+      .relText { font-size: 13px; font-weight: 700; fill: #15567e; }
+      .note { font-size: 13px; fill: #536179; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2874a6" />
+    </marker>
+  </defs>
+
+  <rect width="1560" height="1210" fill="#f4f7fb" />
+  <text x="40" y="48" class="title">Modelo relacional · Onboarding de clientes</text>
+  <text x="40" y="76" class="subtitle">PostgreSQL / Supabase · esquema onboarding · PK llave primaria · FK llave foránea · UK valor único</text>
+
+  <!-- Relaciones dibujadas detrás de las tablas -->
+  <path d="M640 410 H735 V278 H850" class="rel" marker-end="url(#arrow)" />
+  <path d="M640 650 H850" class="rel" marker-end="url(#arrow)" />
+  <path d="M640 875 H735 V1000 H850" class="rel" marker-end="url(#arrow)" />
+  <text x="666" y="393" class="relText">1 : 1</text>
+  <text x="666" y="635" class="relText">1 : N</text>
+  <text x="666" y="900" class="relText">1 : 0..1</text>
+
+  <!-- Tabla CLIENTES -->
+  <g transform="translate(40,145)">
+    <rect width="600" height="820" rx="12" class="card" />
+    <path d="M12 0 H588 Q600 0 600 12 V48 H0 V12 Q0 0 12 0" class="head" />
+    <text x="22" y="31" class="headText">CLIENTES</text>
+    <rect x="0" y="48" width="600" height="30" class="colHead" />
+    <text x="16" y="68" class="colText">CAMPO</text><text x="330" y="68" class="colText">TIPO</text><text x="466" y="68" class="colText">REGLA / LLAVE</text>
+    <g class="field">
+      <text x="16" y="101">id</text><text x="16" y="133">fecha_creacion</text><text x="16" y="165">fecha_actualizacion</text><text x="16" y="197">fecha_nacimiento</text><text x="16" y="229">activo</text><text x="16" y="261">sexo</text><text x="16" y="293">nombre</text><text x="16" y="325">segundo_nombre</text><text x="16" y="357">apellido_paterno</text><text x="16" y="389">apellido_materno</text><text x="16" y="421">curp</text><text x="16" y="453">rfc</text><text x="16" y="485">nacionalidad</text><text x="16" y="517">estado_civil</text><text x="16" y="549">correo</text><text x="16" y="581">telefono_movil</text><text x="16" y="613">telefono_alternativo</text><text x="16" y="645">ocupacion</text><text x="16" y="677">empresa</text><text x="16" y="709">ingreso_mensual</text>
+    </g>
+    <g class="type">
+      <text x="330" y="101">INTEGER</text><text x="330" y="133">TIMESTAMPTZ</text><text x="330" y="165">TIMESTAMPTZ</text><text x="330" y="197">DATE</text><text x="330" y="229">BOOLEAN</text><text x="330" y="261">VARCHAR(1)</text><text x="330" y="293">VARCHAR(50)</text><text x="330" y="325">VARCHAR(50)</text><text x="330" y="357">VARCHAR(50)</text><text x="330" y="389">VARCHAR(50)</text><text x="330" y="421">VARCHAR(18)</text><text x="330" y="453">VARCHAR(13)</text><text x="330" y="485">VARCHAR(3)</text><text x="330" y="517">VARCHAR(12)</text><text x="330" y="549">VARCHAR(100)</text><text x="330" y="581">VARCHAR(10)</text><text x="330" y="613">VARCHAR(10)</text><text x="330" y="645">VARCHAR(60)</text><text x="330" y="677">VARCHAR(100)</text><text x="330" y="709">NUMERIC(12,2)</text>
+    </g>
+    <g class="key">
+      <text x="466" y="101">PK · identity</text><text x="466" y="133">NOT NULL</text><text x="466" y="165">NOT NULL</text><text x="466" y="197">NOT NULL</text><text x="466" y="229">NOT NULL</text><text x="466" y="261">H o M</text><text x="466" y="293">2–50 · requerido</text><text x="466" y="325">opcional</text><text x="466" y="357">2–50 · requerido</text><text x="466" y="389">2–50 · requerido</text><text x="466" y="421">UK · 18 caracteres</text><text x="466" y="453">UK · 13 caracteres</text><text x="466" y="485">ISO 3166-1</text><text x="466" y="517">catálogo</text><text x="466" y="549">UK · máximo 100</text><text x="466" y="581">10 dígitos</text><text x="466" y="613">opcional</text><text x="466" y="645">requerido</text><text x="466" y="677">requerido</text><text x="466" y="709">mayor que 0</text>
+    </g>
+    <g class="rowLine">
+      <path d="M0 112 H600 M0 144 H600 M0 176 H600 M0 208 H600 M0 240 H600 M0 272 H600 M0 304 H600 M0 336 H600 M0 368 H600 M0 400 H600 M0 432 H600 M0 464 H600 M0 496 H600 M0 528 H600 M0 560 H600 M0 592 H600 M0 624 H600 M0 656 H600 M0 688 H600 M0 720 H600" />
+    </g>
+  </g>
+
+  <!-- Tabla DOMICILIOS -->
+  <g transform="translate(850,105)">
+    <rect width="660" height="354" rx="12" class="card" />
+    <path d="M12 0 H648 Q660 0 660 12 V48 H0 V12 Q0 0 12 0" class="head" />
+    <text x="22" y="31" class="headText">DOMICILIOS</text>
+    <rect x="0" y="48" width="660" height="30" class="colHead" />
+    <text x="16" y="68" class="colText">CAMPO</text><text x="315" y="68" class="colText">TIPO</text><text x="465" y="68" class="colText">REGLA / LLAVE</text>
+    <g class="field"><text x="16" y="101">id</text><text x="16" y="129">cliente_id</text><text x="16" y="157">calle</text><text x="16" y="185">numero_exterior</text><text x="16" y="213">numero_interior</text><text x="16" y="241">colonia</text><text x="16" y="269">municipio</text><text x="16" y="297">estado</text><text x="16" y="325">codigo_postal / pais</text></g>
+    <g class="type"><text x="315" y="101">INTEGER</text><text x="315" y="129">INTEGER</text><text x="315" y="157">VARCHAR(100)</text><text x="315" y="185">VARCHAR(10)</text><text x="315" y="213">VARCHAR(10)</text><text x="315" y="241">VARCHAR(100)</text><text x="315" y="269">VARCHAR(100)</text><text x="315" y="297">VARCHAR(50)</text><text x="315" y="325">VARCHAR(5) / VARCHAR(3)</text></g>
+    <g class="key"><text x="465" y="101">PK · identity</text><text x="465" y="129">FK · UK · NOT NULL</text><text x="465" y="157">requerido</text><text x="465" y="185">requerido</text><text x="465" y="213">opcional</text><text x="465" y="241">requerido</text><text x="465" y="269">del servicio CP</text><text x="465" y="297">del servicio CP</text><text x="465" y="325">5 dígitos · MEX</text></g>
+    <g class="rowLine"><path d="M0 112 H660 M0 140 H660 M0 168 H660 M0 196 H660 M0 224 H660 M0 252 H660 M0 280 H660 M0 308 H660 M0 336 H660" /></g>
+  </g>
+
+  <!-- Tabla CUENTAS -->
+  <g transform="translate(850,505)">
+    <rect width="660" height="270" rx="12" class="card" />
+    <path d="M12 0 H648 Q660 0 660 12 V48 H0 V12 Q0 0 12 0" class="head" />
+    <text x="22" y="31" class="headText">CUENTAS</text>
+    <rect x="0" y="48" width="660" height="30" class="colHead" />
+    <text x="16" y="68" class="colText">CAMPO</text><text x="315" y="68" class="colText">TIPO</text><text x="465" y="68" class="colText">REGLA / LLAVE</text>
+    <g class="field"><text x="16" y="101">id</text><text x="16" y="129">cliente_id</text><text x="16" y="157">numero_cuenta</text><text x="16" y="185">estatus</text><text x="16" y="213">saldo</text><text x="16" y="241">fechas de creación / actualización</text></g>
+    <g class="type"><text x="315" y="101">INTEGER</text><text x="315" y="129">INTEGER</text><text x="315" y="157">VARCHAR(10)</text><text x="315" y="185">VARCHAR(10)</text><text x="315" y="213">NUMERIC(15,2)</text><text x="315" y="241">TIMESTAMPTZ</text></g>
+    <g class="key"><text x="465" y="101">PK · identity</text><text x="465" y="129">FK · NOT NULL</text><text x="465" y="157">UK · 10 dígitos</text><text x="465" y="185">ACTIVA / INACTIVA</text><text x="465" y="213">no negativo · inicial del sistema</text><text x="465" y="241">automáticas</text></g>
+    <g class="rowLine"><path d="M0 112 H660 M0 140 H660 M0 168 H660 M0 196 H660 M0 224 H660 M0 252 H660" /></g>
+  </g>
+
+  <!-- Tabla USUARIOS -->
+  <g transform="translate(850,825)">
+    <rect width="660" height="326" rx="12" class="card" />
+    <path d="M12 0 H648 Q660 0 660 12 V48 H0 V12 Q0 0 12 0" class="head" />
+    <text x="22" y="31" class="headText">USUARIOS</text>
+    <rect x="0" y="48" width="660" height="30" class="colHead" />
+    <text x="16" y="68" class="colText">CAMPO</text><text x="315" y="68" class="colText">TIPO</text><text x="465" y="68" class="colText">REGLA / LLAVE</text>
+    <g class="field"><text x="16" y="101">id</text><text x="16" y="129">cliente_id</text><text x="16" y="157">correo</text><text x="16" y="185">password</text><text x="16" y="213">rol</text><text x="16" y="241">activo</text><text x="16" y="269">fecha_creacion</text><text x="16" y="297">fecha_actualizacion</text></g>
+    <g class="type"><text x="315" y="101">INTEGER</text><text x="315" y="129">INTEGER · nullable</text><text x="315" y="157">VARCHAR(100)</text><text x="315" y="185">VARCHAR(60)</text><text x="315" y="213">VARCHAR(10)</text><text x="315" y="241">BOOLEAN</text><text x="315" y="269">TIMESTAMPTZ</text><text x="315" y="297">TIMESTAMPTZ</text></g>
+    <g class="key"><text x="465" y="101">PK · identity</text><text x="465" y="129">FK · UK por cliente</text><text x="465" y="157">UK · correo del cliente</text><text x="465" y="185">hash BCrypt</text><text x="465" y="213">CLIENTE / EJECUTIVO</text><text x="465" y="241">NOT NULL</text><text x="465" y="269">automática</text><text x="465" y="297">automática</text></g>
+    <g class="rowLine"><path d="M0 112 H660 M0 140 H660 M0 168 H660 M0 196 H660 M0 224 H660 M0 252 H660 M0 280 H660 M0 308 H660" /></g>
+  </g>
+
+  <text x="40" y="1010" class="note">DOMICILIOS: cada cliente tiene exactamente un domicilio.</text>
+  <text x="40" y="1036" class="note">CUENTAS: un cliente puede tener varias cuentas.</text>
+  <text x="40" y="1062" class="note">USUARIOS: cero o un usuario por cliente; el ejecutivo no tiene cliente_id.</text>
+  <text x="40" y="1110" class="note">El correo de USUARIOS se vincula a (CLIENTES.id, CLIENTES.correo) y se actualiza en cascada.</text>
+  <text x="40" y="1140" class="note">Las llaves y restricciones completas se definen en database/schema.sql.</text>
+</svg>
