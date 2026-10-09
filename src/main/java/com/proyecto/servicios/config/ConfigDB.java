@@ -27,8 +27,8 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableJpaRepositories(
         basePackages = {
-                "com.proyecto.servicios.repositorys.sf",
-                "com.proyecto.servicios.repositorys.gestopago"
+                "com.proyecto.servicios.repositorys.gestopago",
+                "com.proyecto.servicios.repositorys.onboarding"
         },
         transactionManagerRef = "sfTransactionManager",
         entityManagerFactoryRef = "sfEntityManagerFactory"
@@ -45,7 +45,7 @@ public class ConfigDB {
             config.setPassword(env.getProperty("spring.datasource.password"));
             config.setUsername(env.getProperty("spring.datasource.username"));
             config.setMaximumPoolSize(10);
-            config.setMaxLifetime(18800);
+            config.setMaxLifetime(1800000);
             config.setConnectionTimeout(5000);
             config.setValidationTimeout(5000);
             config.setMinimumIdle(2);
@@ -66,17 +66,19 @@ public class ConfigDB {
         try{
           em.setDataSource(sfDatasource());
           em.setPackagesToScan(
-                  "com.proyecto.servicios.entity.sf",
-                  "com.proyecto.servicios.entity.gestopago"
+                  "com.proyecto.servicios.entity.gestopago",
+                  "com.proyecto.servicios.entity.onboarding"
           );
           em.setPersistenceUnitName("sfDatasource");
             HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
             em.setJpaVendorAdapter(vendorAdapter);
           Map<String, Object> properties=new HashMap<>();
-          properties.put("hibernate.hbm2ddl.auto", "none");
-            properties.put("hibernate.show-sql", false);
+          // Flyway crea el esquema; Hibernate solo valida que las entidades coincidan con el.
+          properties.put("hibernate.hbm2ddl.auto", "validate");
+            properties.put("hibernate.show_sql", false);
             properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
             properties.put("jakarta.persistence.query.timeout", 600000);
+            em.setJpaPropertyMap(properties);
 
 
         } catch (Exception e) {
