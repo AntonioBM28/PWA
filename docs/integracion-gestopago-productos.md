@@ -35,7 +35,7 @@ Si la carga falla (GestoPago caído, timeout, código de error o catálogo vací
 | Entidad Mongo | `entity/mongo/CatProducto` | Documento de la colección (`_id` = `idProducto`) |
 | Repositorio | `repositorys/mongo/CatProductoRepository(Custom/Impl)` | `MongoRepository` del catálogo + reemplazo bulk con `MongoTemplate` |
 | DTO externo | `model/gestopago/GestoPagoProductListResponse`, `GestoPagoMensaje`, `GestoPagoProducto` | Contrato XML de GestoPago (anotaciones JAXB) |
-| DTO de salida | `model/ProductosResponse`, `ProductoResponse` | Respuesta JSON; extiende `GenericResponse` como `PersonaResponse` |
+| DTO de salida | `model/ProductosResponse`, `ProductoResponse` | Respuesta JSON; extiende `GenericResponse` |
 | Mapper | `mapper/GestoPagoProductoMapper` | MapStruct: XML → documento Mongo → respuesta JSON |
 | Controller | `controller/ProductoController` | `GET /productos` |
 | Errores | `exception/*` | Jerarquía de excepciones y `@RestControllerAdvice` |
@@ -105,7 +105,7 @@ Toda la configuración vive en `src/main/resources/application.properties`, sigu
 | MongoDB no disponible | `CatalogoProductosException` | `GET /productos` responde 503 |
 
 Las excepciones de GestoPago heredan de `GestoPagoIntegrationException` (con su estatus HTTP) y
-`GestoPagoExceptionHandler` convierte todas en `GenericResponse` (`codigo = 1`). La configuración Feign **no** se anota
+`GlobalExceptionHandler` (manejador global de toda la aplicación) convierte todas en `GenericResponse` (`codigo = 1`). La configuración Feign **no** se anota
 con `@Configuration`, así el decoder XML y el `ErrorDecoder` solo aplican a este cliente.
 
 ## Logs
