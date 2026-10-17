@@ -87,17 +87,17 @@ En Swagger, abre `POST /auth/login`, envía esas credenciales y copia el valor d
 |---|---|---|
 | `POST` | `/auth/login` | Público; inicia sesión y devuelve JWT. |
 | `POST` | `/clientes` | Público; registra cliente, domicilio, cuenta y usuario. |
-| `GET` | `/clientes` | Ejecutivo; lista paginada y filtra por nombre, apellidos, CURP, RFC, correo, número de cuenta, estatus y fechas. |
-| `GET` | `/clientes/{id}` | Ejecutivo o el propio cliente. |
-| `PATCH` | `/clientes/{id}` | Ejecutivo o el propio cliente; actualización parcial y baja/reactivación lógica. CURP y RFC son inmutables. |
-| `GET` | `/cuentas` | Ejecutivo; filtra por `clienteId` y/o `estatus`. Cliente: debe indicar su `clienteId`. |
-| `GET` | `/cuentas/{numeroCuenta}` | Ejecutivo o propietario. |
-| `GET` | `/cuentas/{numeroCuenta}/saldo` | Ejecutivo o propietario. |
+| `POST` | `/clientes/busqueda` | Ejecutivo; recibe filtros JSON opcionales combinables y paginados. |
+| `POST` | `/clientes/consulta` | Ejecutivo o el propio cliente; recibe `clienteId` en JSON. |
+| `PATCH` | `/clientes` | Ejecutivo o el propio cliente; recibe `clienteId` y `cambios` en JSON. Actualización parcial y baja/reactivación lógica. CURP y RFC son inmutables. |
+| `POST` | `/cuentas/busqueda` | Ejecutivo; recibe `clienteId` y/o `estatus` en JSON. Cliente: debe indicar su propio `clienteId`. |
+| `POST` | `/cuentas/consulta` | Ejecutivo o propietario; recibe `numeroCuenta` en JSON. |
+| `POST` | `/cuentas/saldo` | Ejecutivo o propietario; recibe `numeroCuenta` en JSON. |
 | `POST` | `/cuentas` | Ejecutivo; crea cuenta para cliente activo. |
-| `PATCH` | `/cuentas/{numeroCuenta}` | Ejecutivo; modifica estatus. |
-| `GET` | `/usuarios/filtro` | Ejecutivo; filtra por correo, estatus o cliente. |
+| `PATCH` | `/cuentas` | Ejecutivo; recibe `numeroCuenta` y modifica estatus. |
+| `POST` | `/usuarios/filtro` | Ejecutivo; recibe en JSON los filtros combinables de correo, estatus, cliente y paginación. |
 | `PUT` | `/usuarios/agregar` | Ejecutivo; agrega usuario a cliente activo sin usuario. |
-| `GET` | `/codigos-postales/{codigoPostal}` | Público; consulta CP mexicano, estado, municipio y colonias. |
+| `POST` | `/codigos-postales/consulta` | Público; recibe `codigoPostal` en JSON y consulta estado, municipio y colonias. |
 | `GET` | `/productos` | Público; consulta el catálogo de productos externo. |
 
 Las listas usan `pagina` (inicia en 0) y `tamanio` (por defecto 20, máximo 100). El detalle completo de parámetros y modelos está en Swagger.

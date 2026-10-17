@@ -49,7 +49,7 @@ public class SeguridadConfig {
                 .sessionManagement(sesion -> sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(rutas -> rutas
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/clientes").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/codigos-postales/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/codigos-postales/consulta").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/productos").permitAll()
                         .requestMatchers("/actuator/health", "/error").permitAll()

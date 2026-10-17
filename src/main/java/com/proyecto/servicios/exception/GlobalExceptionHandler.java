@@ -20,8 +20,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +44,32 @@ public class GlobalExceptionHandler {
     static final String MENSAJE_ACCESO_DENEGADO = "No tiene permiso para realizar esta operacion o acceder a estos datos";
 
     // ===================================================================== Negocio
+
+    @ExceptionHandler({ClienteNoEncontradoException.class, CuentaNoEncontradaException.class})
+    public ResponseEntity<GenericResponse> handleRecursoNoEncontrado(OnboardingException ex) {
+        return error(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler({ClienteYaRegistradoException.class, UsuarioYaRegistradoException.class,
+            ClienteInactivoException.class})
+    public ResponseEntity<GenericResponse> handleConflictoNegocio(OnboardingException ex) {
+        return error(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ValidacionException.class)
+    public ResponseEntity<GenericResponse> handleValidacionNegocio(ValidacionException ex) {
+        return error(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    public ResponseEntity<GenericResponse> handleCredencialesInvalidas(CredencialesInvalidasException ex) {
+        return error(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UsuarioInactivoException.class)
+    public ResponseEntity<GenericResponse> handleUsuarioInactivo(UsuarioInactivoException ex) {
+        return error(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
 
     /** Reglas de negocio del onboarding; cada subclase define su estatus HTTP. */
     @ExceptionHandler(OnboardingException.class)
@@ -95,14 +125,23 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<GenericResponse> handleValidacionCuerpo(MethodArgumentNotValidException ex) {
-        String mensaje = ex.getBindingResult().getFieldErrors().stream()
+        Map<String, List<String>> errores = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().stream()
                 .sorted(Comparator.comparing(FieldError::getField))
-                .map(error -> error.isBindingFailure()
-                        ? "Valor '" + error.getRejectedValue() + "' no valido para el parametro " + error.getField()
-                        : error.getDefaultMessage())
-                .distinct()
+                .forEach(fieldError -> errores
+                        .computeIfAbsent(fieldError.getField(), campo -> new ArrayList<>())
+                        .add(fieldError.isBindingFailure()
+                                ? "Valor no valido para el campo " + fieldError.getField()
+                                : mensajeValidacion(fieldError)));
+
+        String mensaje = errores.entrySet().stream()
+                .map(entrada -> entrada.getKey() + ": " + String.join(", ", entrada.getValue()))
                 .collect(Collectors.joining(SEPARADOR));
-        return error(mensaje, HttpStatus.BAD_REQUEST);
+        GenericResponse response = new GenericResponse();
+        response.setCodigo(CODIGO_ERROR);
+        response.setMensaje(mensaje);
+        response.setErrores(errores);
+        return ResponseEntity.badRequest().body(response);
     }
 
     /** Errores de Bean Validation en parametros (@PathVariable, @RequestParam). */
@@ -179,6 +218,12 @@ public class GlobalExceptionHandler {
         return ex.getPath().stream()
                 .map(referencia -> referencia.getFieldName() != null ? referencia.getFieldName() : "[" + referencia.getIndex() + "]")
                 .collect(Collectors.joining("."));
+    }
+
+    private static String mensajeValidacion(FieldError fieldError) {
+        return fieldError.getDefaultMessage() != null
+                ? fieldError.getDefaultMessage()
+                : "El valor del campo no es valido";
     }
 
     private static ResponseEntity<GenericResponse> error(String mensaje, HttpStatus status) {

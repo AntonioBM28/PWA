@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Render API - funcional y carga baja" enabled="true">
@@ -25,16 +25,16 @@
         <stringProp name="ThreadGroup.delay" />
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET protegido sin token -&gt; 401" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST protegido sin token -&gt; 401" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -55,7 +55,7 @@
                 <stringProp name="Header.name">Accept</stringProp>
                 <stringProp name="Header.value">application/json</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET protegido sin token -&gt; 401 expected status" enabled="true">
@@ -67,16 +67,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET código postal válido -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST consulta código postal válido -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"codigoPostal":"37806"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/codigos-postales/37806</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/codigos-postales/consulta</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -91,16 +91,16 @@
           <stringProp name="HTTPSampler.response_timeout">60000</stringProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="GET código postal válido -&gt; 200 headers" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="POST consulta código postal válido -&gt; 200 headers" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp elementType="Header">
                 <stringProp name="Header.name">Accept</stringProp>
                 <stringProp name="Header.value">application/json</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
-          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET código postal válido -&gt; 200 expected status" enabled="true">
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="POST consulta código postal válido -&gt; 200 expected status" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="parameters">200</stringProp>
             <stringProp name="filename" />
@@ -211,16 +211,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET clientes -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST clientes -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -245,7 +245,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET clientes -&gt; 200 expected status" enabled="true">
@@ -257,16 +257,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET filtro cliente nombre -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST filtro cliente nombre -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"nombre":"Hugo"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes?nombre=Hugo</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -291,7 +291,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET filtro cliente nombre -&gt; 200 expected status" enabled="true">
@@ -303,16 +303,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET filtro cliente apellido paterno -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST filtro cliente apellido paterno -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"apellidoPaterno":"Gom"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes?apellidoPaterno=Gom</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -337,7 +337,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET filtro cliente apellido paterno -&gt; 200 expected status" enabled="true">
@@ -349,16 +349,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET filtro cliente apellido materno -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST filtro cliente apellido materno -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"apellidoMaterno":"QA"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes?apellidoMaterno=QA</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -383,7 +383,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET filtro cliente apellido materno -&gt; 200 expected status" enabled="true">
@@ -395,16 +395,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET filtro cliente CURP -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST filtro cliente CURP -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"curp":"GOME950101HDFRRN08"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes?curp=GOME950101HDFRRN08</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -429,7 +429,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET filtro cliente CURP -&gt; 200 expected status" enabled="true">
@@ -441,16 +441,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET filtro cliente RFC -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST filtro cliente RFC -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"rfc":"GOME950101AB1"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes?rfc=GOME950101AB1</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -475,7 +475,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET filtro cliente RFC -&gt; 200 expected status" enabled="true">
@@ -487,16 +487,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET filtro cliente correo -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST filtro cliente correo -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"correo":"render.probe.20261009@example.com"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes?correo=render.probe.20261009%40example.com</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -521,7 +521,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET filtro cliente correo -&gt; 200 expected status" enabled="true">
@@ -533,16 +533,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET filtro cliente cuenta -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST filtro cliente cuenta -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"numeroCuenta":"1000000003"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes?numeroCuenta=1000000003</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -567,7 +567,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET filtro cliente cuenta -&gt; 200 expected status" enabled="true">
@@ -579,16 +579,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET filtro cliente fechas -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST filtro cliente fechas -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"fechaRegistroDesde":"2026-10-01","fechaRegistroHasta":"2026-10-31"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes?fechaRegistroDesde=2026-10-01&amp;fechaRegistroHasta=2026-10-31</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -613,7 +613,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET filtro cliente fechas -&gt; 200 expected status" enabled="true">
@@ -625,16 +625,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET cliente id 3 -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST consulta cliente id 3 -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/3</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/consulta</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -659,7 +659,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET cliente id 3 -&gt; 200 expected status" enabled="true">
@@ -673,20 +673,13 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PATCH datos inmutables -&gt; 400" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp elementType="HTTPArgument" name="">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.value">{"curp":"LOPE900101HDFABC01"}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3,"cambios":{"curp":"LOPE900101HDFABC01"}}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/3</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes</stringProp>
           <stringProp name="HTTPSampler.method">PATCH</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -728,16 +721,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET cuentas cliente 3 -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST cuentas cliente 3 -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas?clienteId=3</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -762,7 +755,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET cuentas cliente 3 -&gt; 200 expected status" enabled="true">
@@ -774,16 +767,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET cuentas inactivas -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST cuentas inactivas -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"estatus":"INACTIVA"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas?estatus=INACTIVA</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -808,7 +801,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET cuentas inactivas -&gt; 200 expected status" enabled="true">
@@ -820,16 +813,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET cuenta sintética -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST consulta cuenta sintética -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"numeroCuenta":"1000000003"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas/1000000003</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas/consulta</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -854,7 +847,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET cuenta sintética -&gt; 200 expected status" enabled="true">
@@ -866,16 +859,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET saldo sintético -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST saldo sintético -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"numeroCuenta":"1000000003"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas/1000000003/saldo</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas/saldo</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -900,7 +893,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET saldo sintético -&gt; 200 expected status" enabled="true">
@@ -912,16 +905,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET usuarios filtrados -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST usuarios filtrados -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"correo":"render.probe.20261009"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/usuarios/filtro?correo=render.probe.20261009</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/usuarios/filtro</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -946,7 +939,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${adminJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET usuarios filtrados -&gt; 200 expected status" enabled="true">
@@ -1068,16 +1061,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET código postal inexistente -&gt; 404" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST consulta código postal inexistente -&gt; 404" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"codigoPostal":"99999"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/codigos-postales/99999</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/codigos-postales/consulta</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -1092,16 +1085,16 @@
           <stringProp name="HTTPSampler.response_timeout">60000</stringProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="GET código postal inexistente -&gt; 404 headers" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="POST consulta código postal inexistente -&gt; 404 headers" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp elementType="Header">
                 <stringProp name="Header.name">Accept</stringProp>
                 <stringProp name="Header.value">application/json</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
-          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET código postal inexistente -&gt; 404 expected status" enabled="true">
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="POST consulta código postal inexistente -&gt; 404 expected status" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="parameters">404</stringProp>
             <stringProp name="filename" />
@@ -1112,20 +1105,13 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PATCH reactivar cliente sintético -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp elementType="HTTPArgument" name="">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.value">{"activo":true}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3,"cambios":{"activo":true}}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/3</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes</stringProp>
           <stringProp name="HTTPSampler.method">PATCH</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1227,16 +1213,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET propio cliente -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST propio cliente -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/3</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/consulta</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -1261,7 +1247,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${clientJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET propio cliente -&gt; 200 expected status" enabled="true">
@@ -1273,16 +1259,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET otro cliente denegado -&gt; 403" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST otro cliente denegado -&gt; 403" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":1}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/1</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/consulta</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -1307,7 +1293,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${clientJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET otro cliente denegado -&gt; 403 expected status" enabled="true">
@@ -1319,16 +1305,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET cuenta propia -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST cuenta propia -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"numeroCuenta":"1000000003"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas/1000000003</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas/consulta</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -1353,7 +1339,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${clientJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET cuenta propia -&gt; 200 expected status" enabled="true">
@@ -1365,16 +1351,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET saldo propio -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST saldo propio -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"numeroCuenta":"1000000003"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas/1000000003/saldo</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas/saldo</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -1399,7 +1385,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${clientJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET saldo propio -&gt; 200 expected status" enabled="true">
@@ -1411,16 +1397,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET lista cuentas denegada -&gt; 403" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST lista cuentas denegada -&gt; 403" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas/busqueda</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -1445,7 +1431,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${clientJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET lista cuentas denegada -&gt; 403 expected status" enabled="true">
@@ -1516,20 +1502,13 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PATCH alta cuenta inválida -&gt; 400" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp elementType="HTTPArgument" name="">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.value">{"estatus":"BLOQUEADA"}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"numeroCuenta":"1000000003","estatus":"BLOQUEADA"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas/1000000003</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas</stringProp>
           <stringProp name="HTTPSampler.method">PATCH</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1637,20 +1616,13 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PATCH nueva cuenta inactiva -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp elementType="HTTPArgument" name="">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.value">{"estatus":"INACTIVA"}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"numeroCuenta":"${newAccount}","estatus":"INACTIVA"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas/${newAccount}</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas</stringProp>
           <stringProp name="HTTPSampler.method">PATCH</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1694,20 +1666,13 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PATCH nueva cuenta activa -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp elementType="HTTPArgument" name="">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.value">{"estatus":"ACTIVA"}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"numeroCuenta":"${newAccount}","estatus":"ACTIVA"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas/${newAccount}</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas</stringProp>
           <stringProp name="HTTPSampler.method">PATCH</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1751,20 +1716,13 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PATCH desactivar cliente sintético y cuentas -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp elementType="HTTPArgument" name="">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.value">{"activo":false}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3,"cambios":{"activo":false}}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/3</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes</stringProp>
           <stringProp name="HTTPSampler.method">PATCH</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1806,16 +1764,16 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET token tras baja denegado -&gt; 401" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST token tras baja denegado -&gt; 401" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/3</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/consulta</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -1840,7 +1798,7 @@
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${clientJwt}</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET token tras baja denegado -&gt; 401 expected status" enabled="true">
@@ -1866,16 +1824,16 @@
         <stringProp name="ThreadGroup.delay" />
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET CP cacheado, carga baja -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST consulta CP cacheado, carga baja -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments" />
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"codigoPostal":"37806"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/codigos-postales/37806</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/codigos-postales/consulta</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -1890,16 +1848,16 @@
           <stringProp name="HTTPSampler.response_timeout">60000</stringProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="GET CP cacheado, carga baja -&gt; 200 headers" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="POST consulta CP cacheado, carga baja -&gt; 200 headers" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp elementType="Header">
                 <stringProp name="Header.name">Accept</stringProp>
                 <stringProp name="Header.value">application/json</stringProp>
               </elementProp>
-            </collectionProp>
+            <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
-          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET CP cacheado, carga baja -&gt; 200 expected status" enabled="true">
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="POST consulta CP cacheado, carga baja -&gt; 200 expected status" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="parameters">200</stringProp>
             <stringProp name="filename" />
