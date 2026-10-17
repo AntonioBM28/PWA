@@ -1,8 +1,9 @@
 package com.proyecto.servicios.controller;
 
-import com.proyecto.servicios.model.onboarding.ActualizaClienteRequest;
+import com.proyecto.servicios.model.onboarding.ActualizaClienteConIdRequest;
 import com.proyecto.servicios.model.onboarding.ClienteDetalleResponse;
 import com.proyecto.servicios.model.onboarding.ClienteFiltro;
+import com.proyecto.servicios.model.onboarding.ConsultaClienteRequest;
 import com.proyecto.servicios.model.onboarding.ClienteRequest;
 import com.proyecto.servicios.model.onboarding.ClientesResponse;
 import com.proyecto.servicios.model.onboarding.RegistroClienteResponse;
@@ -11,23 +12,17 @@ import com.proyecto.servicios.service.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ClienteController {
-
-    private static final String MENSAJE_ID = "El id del cliente debe ser un numero positivo";
 
     private final ClienteService clienteService;
 
@@ -46,29 +41,26 @@ public class ClienteController {
     @Operation(summary = "Consultar clientes (EJECUTIVO)",
             description = "Sin filtros devuelve todos los clientes (paginados). Los filtros son opcionales y se combinan")
     @PreAuthorize(Permisos.EJECUTIVO)
-    @GetMapping(value = "/clientes", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ClientesResponse> consultarClientes(@Valid @ParameterObject ClienteFiltro filtro) {
+    @PostMapping(value = "/clientes/busqueda", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ClientesResponse> consultarClientes(@Valid @RequestBody ClienteFiltro filtro) {
         return new ResponseEntity<>(clienteService.consultarClientes(filtro), HttpStatus.OK);
     }
 
     @Operation(summary = "Consultar un cliente por id",
-            description = "Incluye su domicilio y sus cuentas. Un CLIENTE solo puede consultar sus propios datos")
+            description = "Recibe clienteId en el cuerpo e incluye domicilio y cuentas. Un CLIENTE solo puede consultar sus propios datos")
     @PreAuthorize(Permisos.EJECUTIVO_O_CLIENTE_DEL_ID)
-    @GetMapping(value = "/clientes/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ClienteDetalleResponse> consultarCliente(
-            @PathVariable @Positive(message = MENSAJE_ID) Integer id) {
-        return new ResponseEntity<>(clienteService.consultarCliente(id), HttpStatus.OK);
+    @PostMapping(value = "/clientes/consulta", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ClienteDetalleResponse> consultarCliente(@Valid @RequestBody ConsultaClienteRequest request) {
+        return new ResponseEntity<>(clienteService.consultarCliente(request.getClienteId()), HttpStatus.OK);
     }
 
     @Operation(summary = "Actualizar parcialmente un cliente",
-            description = "Solo cambia los campos enviados. activo=false da de baja logica al cliente (sus cuentas y "
+            description = "Recibe clienteId y cambios en el cuerpo. activo=false da de baja logica al cliente (sus cuentas y "
                     + "su usuario quedan inactivos); activo=true lo reactiva. CURP, RFC y numero de cuenta no se pueden "
                     + "modificar. Un CLIENTE solo puede modificar sus propios datos y no puede cambiar 'activo'")
     @PreAuthorize(Permisos.EJECUTIVO_O_CLIENTE_SIN_CAMBIO_DE_ESTATUS)
-    @PatchMapping(value = "/clientes/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ClienteDetalleResponse> actualizarCliente(
-            @PathVariable @Positive(message = MENSAJE_ID) Integer id,
-            @Valid @RequestBody ActualizaClienteRequest request) {
-        return new ResponseEntity<>(clienteService.actualizarCliente(id, request), HttpStatus.OK);
+    @PatchMapping(value = "/clientes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ClienteDetalleResponse> actualizarCliente(@Valid @RequestBody ActualizaClienteConIdRequest request) {
+        return new ResponseEntity<>(clienteService.actualizarCliente(request.getClienteId(), request.getCambios()), HttpStatus.OK);
     }
 }

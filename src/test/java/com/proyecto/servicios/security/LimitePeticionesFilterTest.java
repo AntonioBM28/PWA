@@ -49,9 +49,9 @@ class LimitePeticionesFilterTest {
     @Test
     void otrasRutasYMetodos_noSeLimitan() throws Exception {
         for (int i = 0; i < 5; i++) {
-            assertEquals(200, ejecutar("GET", "/clientes", "10.0.0.1").getStatus());
-            assertEquals(200, ejecutar("PATCH", "/clientes/1", "10.0.0.1").getStatus());
-            assertEquals(200, ejecutar("GET", "/codigos-postales/44100", "10.0.0.1").getStatus());
+            assertEquals(200, ejecutar("POST", "/clientes/busqueda", "10.0.0.1").getStatus());
+            assertEquals(200, ejecutar("PATCH", "/clientes", "10.0.0.1").getStatus());
+            assertEquals(200, ejecutar("POST", "/codigos-postales/consulta", "10.0.0.1").getStatus());
         }
     }
 

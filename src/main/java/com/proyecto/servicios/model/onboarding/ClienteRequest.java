@@ -112,6 +112,7 @@ public class ClienteRequest {
     // ----- Acceso -----
     /** Las reglas de complejidad las valida PoliticaContrasena para dar un mensaje por cada regla. */
     @NotBlank(message = "La contrasena es obligatoria")
+    @Size(max = 72, message = "La contrasena admite maximo 72 caracteres")
     private String password;
 
     public void setCurp(String curp) {

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Filtros de GET /cuentas. Son opcionales y se combinan entre si (AND); la paginacion viene de
+ * Filtros de POST /cuentas/busqueda. Son opcionales y se combinan entre si (AND); la paginacion viene de
  * FiltroPaginado.
  */
 @Getter

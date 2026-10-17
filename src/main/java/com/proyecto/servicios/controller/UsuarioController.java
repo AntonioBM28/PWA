@@ -8,12 +8,11 @@ import com.proyecto.servicios.security.Permisos;
 import com.proyecto.servicios.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,8 +30,8 @@ public class UsuarioController {
 
     @Operation(summary = "Consultar usuarios",
             description = "Filtra por correo (o inicio del correo), activo y/o clienteId; sin filtros devuelve todos")
-    @GetMapping(value = "/usuarios/filtro", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UsuariosResponse> consultarUsuarios(@Valid @ParameterObject UsuarioFiltro filtro) {
+    @PostMapping(value = "/usuarios/filtro", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UsuariosResponse> consultarUsuarios(@Valid @RequestBody UsuarioFiltro filtro) {
         return new ResponseEntity<>(usuarioService.consultarUsuarios(filtro), HttpStatus.OK);
     }
 

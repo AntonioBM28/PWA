@@ -13,7 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 
 /**
- * Filtros de GET /clientes. Todos son opcionales y se combinan entre si (AND); la paginacion
+ * Filtros de POST /clientes/busqueda. Todos son opcionales y se combinan entre si (AND); la paginacion
  * viene de FiltroPaginado.
  */
 @Getter

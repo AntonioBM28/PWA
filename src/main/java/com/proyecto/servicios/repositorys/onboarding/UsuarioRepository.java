@@ -13,7 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 
 /**
- * Las busquedas combinables de usuarios (GET /usuarios/filtro) se arman con UsuarioSpecifications.
+ * Las busquedas combinables de usuarios (POST /usuarios/filtro) se arman con UsuarioSpecifications.
  */
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer>, JpaSpecificationExecutor<Usuario> {
