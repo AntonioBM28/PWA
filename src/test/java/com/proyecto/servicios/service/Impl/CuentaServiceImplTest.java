@@ -61,29 +61,11 @@ class CuentaServiceImplTest {
     // ===================================================================== Consultas
 
     @Test
-    void consultarCuenta_existente() {
-        when(cuentaRepository.findByNumeroCuenta(NUMERO_CUENTA))
-                .thenReturn(Optional.of(cuenta(cliente(true), EstatusCuenta.ACTIVA)));
-
-        CuentaDetalleResponse response = service.consultarCuenta(NUMERO_CUENTA);
-
-        assertEquals(NUMERO_CUENTA, response.getCuenta().getNumeroCuenta());
-        assertEquals(ID_CLIENTE, response.getCuenta().getClienteId());
-    }
-
-    @Test
-    void consultarCuenta_noExiste() {
-        when(cuentaRepository.findByNumeroCuenta("9999999999")).thenReturn(Optional.empty());
-
-        assertThrows(CuentaNoEncontradaException.class, () -> service.consultarCuenta("9999999999"));
-    }
-
-    @Test
-    void consultarCuentas_porClienteYEstatus_devuelvePagina() {
+    void consultarCuentas_porNumeroCorreoYEstatus_devuelvePagina() {
         CuentaFiltro filtro = new CuentaFiltro();
-        filtro.setClienteId(ID_CLIENTE);
+        filtro.setNumeroCuenta(NUMERO_CUENTA);
+        filtro.setCorreoCliente("cliente@ejemplo.com");
         filtro.setEstatus(EstatusCuenta.ACTIVA);
-        when(clienteRepository.existsById(ID_CLIENTE)).thenReturn(true);
         when(cuentaRepository.findAll(any(Specification.class), any(Pageable.class))).thenAnswer(inv ->
                 new PageImpl<>(List.of(cuenta(cliente(true), EstatusCuenta.ACTIVA)), inv.getArgument(1), 1));
 
@@ -92,16 +74,6 @@ class CuentaServiceImplTest {
         assertEquals(1, response.getCuentas().size());
         assertEquals(1, response.getTotalElementos());
         assertEquals(20, response.getTamanio());
-    }
-
-    @Test
-    void consultarCuentas_deClienteInexistente() {
-        CuentaFiltro filtro = new CuentaFiltro();
-        filtro.setClienteId(99);
-        when(clienteRepository.existsById(99)).thenReturn(false);
-
-        assertThrows(ClienteNoEncontradoException.class, () -> service.consultarCuentas(filtro));
-        verify(cuentaRepository, never()).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test

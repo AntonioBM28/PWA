@@ -263,24 +263,6 @@ class ClienteServiceImplTest {
         verifyNoInteractions(clienteRepository);
     }
 
-    @Test
-    void consultarCliente_incluyeDomicilioYCuentas() {
-        when(clienteRepository.findById(ID_CLIENTE)).thenReturn(Optional.of(clienteExistente(true)));
-        when(cuentaRepository.findByClienteIdOrderByFechaCreacion(ID_CLIENTE)).thenReturn(List.of(cuenta()));
-
-        ClienteDetalleResponse response = service.consultarCliente(ID_CLIENTE);
-
-        assertEquals("Guanajuato", response.getCliente().getDomicilio().getEstado());
-        assertEquals(NUMERO_CUENTA, response.getCuentas().get(0).getNumeroCuenta());
-    }
-
-    @Test
-    void consultarCliente_noExiste() {
-        when(clienteRepository.findById(99)).thenReturn(Optional.empty());
-
-        assertThrows(ClienteNoEncontradoException.class, () -> service.consultarCliente(99));
-    }
-
     // ===================================================================== Actualizacion
 
     @Test

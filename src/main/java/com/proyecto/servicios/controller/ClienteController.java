@@ -3,7 +3,6 @@ package com.proyecto.servicios.controller;
 import com.proyecto.servicios.model.onboarding.ActualizaClienteConIdRequest;
 import com.proyecto.servicios.model.onboarding.ClienteDetalleResponse;
 import com.proyecto.servicios.model.onboarding.ClienteFiltro;
-import com.proyecto.servicios.model.onboarding.ConsultaClienteRequest;
 import com.proyecto.servicios.model.onboarding.ClienteRequest;
 import com.proyecto.servicios.model.onboarding.ClientesResponse;
 import com.proyecto.servicios.model.onboarding.RegistroClienteResponse;
@@ -38,20 +37,12 @@ public class ClienteController {
         return new ResponseEntity<>(clienteService.registrarCliente(request), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Consultar clientes (EJECUTIVO)",
-            description = "Sin filtros devuelve todos los clientes (paginados). Los filtros son opcionales y se combinan")
-    @PreAuthorize(Permisos.EJECUTIVO)
+    @Operation(summary = "Buscar clientes",
+            description = "Los filtros opcionales se combinan. EJECUTIVO puede buscar clientes; CLIENTE debe enviar su propio correo")
+    @PreAuthorize(Permisos.EJECUTIVO_O_CLIENTE_DEL_CORREO)
     @PostMapping(value = "/clientes/busqueda", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ClientesResponse> consultarClientes(@Valid @RequestBody ClienteFiltro filtro) {
         return new ResponseEntity<>(clienteService.consultarClientes(filtro), HttpStatus.OK);
-    }
-
-    @Operation(summary = "Consultar un cliente por id",
-            description = "Recibe clienteId en el cuerpo e incluye domicilio y cuentas. Un CLIENTE solo puede consultar sus propios datos")
-    @PreAuthorize(Permisos.EJECUTIVO_O_CLIENTE_DEL_ID)
-    @PostMapping(value = "/clientes/consulta", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ClienteDetalleResponse> consultarCliente(@Valid @RequestBody ConsultaClienteRequest request) {
-        return new ResponseEntity<>(clienteService.consultarCliente(request.getClienteId()), HttpStatus.OK);
     }
 
     @Operation(summary = "Actualizar parcialmente un cliente",

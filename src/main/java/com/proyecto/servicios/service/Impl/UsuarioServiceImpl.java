@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.proyecto.servicios.repositorys.onboarding.UsuarioSpecifications.activo;
 import static com.proyecto.servicios.repositorys.onboarding.UsuarioSpecifications.correoEmpiezaCon;
-import static com.proyecto.servicios.repositorys.onboarding.UsuarioSpecifications.deCliente;
 
 /**
  * Consulta de usuarios y alta del usuario de un cliente que no tiene uno (el registro de clientes
@@ -66,8 +65,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuariosResponse consultarUsuarios(UsuarioFiltro filtro) {
         Specification<Usuario> criterios = Specification
                 .where(correoEmpiezaCon(filtro.getCorreo()))
-                .and(activo(filtro.getActivo()))
-                .and(deCliente(filtro.getClienteId()));
+                .and(activo(filtro.getActivo()));
         Page<Usuario> pagina = usuarioRepository.findAll(criterios,
                 PageRequest.of(filtro.getPagina(), filtro.getTamanio(), ORDEN_USUARIOS));
 

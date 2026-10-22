@@ -29,7 +29,7 @@ public class UsuarioController {
     }
 
     @Operation(summary = "Consultar usuarios",
-            description = "Filtra por correo (o inicio del correo), activo y/o clienteId; sin filtros devuelve todos")
+            description = "Filtra por correo (o inicio del correo) y/o activo; sin filtros devuelve todos")
     @PostMapping(value = "/usuarios/filtro", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UsuariosResponse> consultarUsuarios(@Valid @RequestBody UsuarioFiltro filtro) {
         return new ResponseEntity<>(usuarioService.consultarUsuarios(filtro), HttpStatus.OK);
