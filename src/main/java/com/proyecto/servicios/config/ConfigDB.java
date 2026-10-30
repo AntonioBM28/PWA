@@ -39,24 +39,29 @@ public class ConfigDB {
 
     @Bean(name="sfDatasource")
     public DataSource sfDatasource(){
+        String jdbcUrl = propiedadRequerida("spring.datasource.url", "SPRING_DATASOURCE_URL");
+        String username = propiedadRequerida("spring.datasource.username", "SPRING_DATASOURCE_USERNAME");
+        String password = propiedadRequerida("spring.datasource.password", "SPRING_DATASOURCE_PASSWORD");
         HikariConfig config=new HikariConfig();
-        try{
-            config.setJdbcUrl(env.getProperty("spring.datasource.url"));
-            config.setPassword(env.getProperty("spring.datasource.password"));
-            config.setUsername(env.getProperty("spring.datasource.username"));
-            config.setMaximumPoolSize(10);
-            config.setMaxLifetime(1800000);
-            config.setConnectionTimeout(5000);
-            config.setValidationTimeout(5000);
-            config.setMinimumIdle(2);
-            config.setConnectionTestQuery("SELECT 1");
-            config.setPoolName("sfDatasource");
-
-        }catch (Exception e){
-            log.error("Ha ocurrido un error en la conexcion a base de datos, a causa de:",e);
-            return null;
-        }
+        config.setJdbcUrl(jdbcUrl);
+        config.setPassword(password);
+        config.setUsername(username);
+        config.setMaximumPoolSize(10);
+        config.setMaxLifetime(1800000);
+        config.setConnectionTimeout(5000);
+        config.setValidationTimeout(5000);
+        config.setMinimumIdle(2);
+        config.setConnectionTestQuery("SELECT 1");
+        config.setPoolName("sfDatasource");
         return new HikariDataSource(config);
+    }
+
+    private String propiedadRequerida(String property, String variable) {
+        String value = env.getProperty(property);
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException("Falta configurar la variable de entorno " + variable);
+        }
+        return value;
     }
 
     @Bean(name="sfEntityManagerFactory")
