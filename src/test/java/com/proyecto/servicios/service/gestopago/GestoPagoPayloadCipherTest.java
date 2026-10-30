@@ -1,6 +1,7 @@
 package com.proyecto.servicios.service.gestopago;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proyecto.servicios.exception.GestoPagoIntegrationException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Base64;
@@ -35,8 +36,12 @@ class GestoPagoPayloadCipherTest {
     }
 
     @Test
-    void rechazaClavesDeLongitudIncorrecta() {
-        assertThrows(IllegalStateException.class, () -> new GestoPagoPayloadCipher(
-                new ObjectMapper(), base64(16, 1), base64(16, 2), base64(32, 3)));
+    void permiteArranqueSinClavesPeroRechazaCifradoHastaConfigurarlas() {
+        GestoPagoPayloadCipher cipher = new GestoPagoPayloadCipher(new ObjectMapper(), "", "", "");
+
+        assertThrows(GestoPagoIntegrationException.class, () -> cipher.cifrar(Map.of("idServicio", 71)));
+        assertThrows(GestoPagoIntegrationException.class, () -> new GestoPagoPayloadCipher(
+                new ObjectMapper(), base64(16, 1), base64(16, 2), base64(32, 3))
+                .protegerParaAlmacenamiento("ciphertext"));
     }
 }
