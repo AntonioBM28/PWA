@@ -4,6 +4,8 @@ import com.proyecto.servicios.entity.onboarding.Cuenta;
 import com.proyecto.servicios.enums.EstatusCuenta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +24,10 @@ import java.util.Optional;
 public interface CuentaRepository extends JpaRepository<Cuenta, Integer>, JpaSpecificationExecutor<Cuenta> {
 
     Optional<Cuenta> findByNumeroCuenta(String numeroCuenta);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select c from Cuenta c join fetch c.cliente where c.numeroCuenta = :numeroCuenta")
+    Optional<Cuenta> bloquearPorNumeroCuenta(@Param("numeroCuenta") String numeroCuenta);
 
     /** Control de acceso: un CLIENTE solo puede consultar sus propias cuentas. */
     boolean existsByNumeroCuentaAndClienteId(String numeroCuenta, Integer clienteId);

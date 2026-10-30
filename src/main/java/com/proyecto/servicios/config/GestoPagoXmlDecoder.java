@@ -11,6 +11,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,6 +48,20 @@ public class GestoPagoXmlDecoder implements Decoder {
             }
         } catch (JAXBException | XMLStreamException e) {
             throw new DecodeException(response.status(), "No fue posible leer el XML de GestoPago", response.request(), e);
+        }
+    }
+
+    public <T> T decode(String xml, Class<T> type) {
+        if (xml == null || xml.isBlank()) return null;
+        try (InputStream body = new ByteArrayInputStream(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8))) {
+            XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(body);
+            try {
+                return obtenerContexto(type).createUnmarshaller().unmarshal(reader, type).getValue();
+            } finally {
+                reader.close();
+            }
+        } catch (JAXBException | XMLStreamException | IOException e) {
+            throw new IllegalArgumentException("La respuesta XML de GestoPago no es válida");
         }
     }
 
