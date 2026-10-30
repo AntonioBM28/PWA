@@ -44,7 +44,7 @@ public class ClienteFiltro extends FiltroPaginado {
     @Pattern(regexp = Patrones.RFC, message = Patrones.MENSAJE_RFC)
     private String rfc;
 
-    @Schema(description = "Correo electronico exacto", example = "maria.garcia@mail.com")
+    @Schema(description = "Correo electronico exacto (requerido para que un CLIENTE consulte sus propios datos)", example = "maria.garcia@mail.com")
     @Pattern(regexp = Patrones.CORREO, message = Patrones.MENSAJE_CORREO)
     private String correo;
 

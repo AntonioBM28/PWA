@@ -1,7 +1,6 @@
 package com.proyecto.servicios.model.onboarding;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,10 +22,6 @@ public class UsuarioFiltro extends FiltroPaginado {
 
     @Schema(description = "true: solo usuarios activos; false: solo inactivos")
     private Boolean activo;
-
-    @Schema(description = "Usuario del cliente indicado", example = "2")
-    @Positive(message = "El id del cliente debe ser un numero positivo")
-    private Integer clienteId;
 
     public void setCorreo(String correo) {
         this.correo = StringUtils.lowerCase(StringUtils.trimToNull(correo));

@@ -625,15 +625,15 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST consulta cliente id 3 -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST busqueda cliente por correo -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"correo":"render.probe.20261009@example.com"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/consulta</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -649,7 +649,7 @@
           <stringProp name="HTTPSampler.response_timeout">60000</stringProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="GET cliente id 3 -&gt; 200 headers" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="POST busqueda cliente por correo -&gt; 200 headers" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp elementType="Header">
                 <stringProp name="Header.name">Accept</stringProp>
@@ -662,7 +662,7 @@
             <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
-          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET cliente id 3 -&gt; 200 expected status" enabled="true">
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="POST busqueda cliente por correo -&gt; 200 expected status" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="parameters">200</stringProp>
             <stringProp name="filename" />
@@ -723,7 +723,7 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST cuentas cliente 3 -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"correo":"render.probe.20261009@example.com"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
@@ -813,7 +813,7 @@
           </JSR223PostProcessor>
           <hashTree />
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST consulta cuenta sintética -&gt; 200" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST busqueda cuenta por numero -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
             <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"numeroCuenta":"1000000003"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
@@ -821,7 +821,7 @@
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas/consulta</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas/busqueda</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1215,13 +1215,13 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST propio cliente -&gt; 200" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"correo":"render.probe.20261009@example.com"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/consulta</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1267,7 +1267,7 @@
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/consulta</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1313,7 +1313,7 @@
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/cuentas/consulta</stringProp>
+          <stringProp name="HTTPSampler.path">/cuentas/busqueda</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1329,7 +1329,7 @@
           <stringProp name="HTTPSampler.response_timeout">60000</stringProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="GET cuenta propia -&gt; 200 headers" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="POST busqueda cuenta propia por numero -&gt; 200 headers" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp elementType="Header">
                 <stringProp name="Header.name">Accept</stringProp>
@@ -1342,7 +1342,7 @@
             <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
-          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET cuenta propia -&gt; 200 expected status" enabled="true">
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="POST busqueda cuenta propia por numero -&gt; 200 expected status" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="parameters">200</stringProp>
             <stringProp name="filename" />
@@ -1449,7 +1449,7 @@
               <elementProp elementType="HTTPArgument" name="">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.value">{"clienteId":3}</stringProp>
+                <stringProp name="Argument.value">{"correo":"render.probe.20261009@example.com"}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -1556,7 +1556,7 @@
               <elementProp elementType="HTTPArgument" name="">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.value">{"clienteId":3}</stringProp>
+                <stringProp name="Argument.value">{"correo":"render.probe.20261009@example.com"}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -1766,13 +1766,13 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST token tras baja denegado -&gt; 401" enabled="true">
           <elementProp elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true" name="HTTPsampler.Arguments">
-            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"clienteId":3}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
+            <collectionProp name="Arguments.arguments"><elementProp elementType="HTTPArgument" name=""><boolProp name="HTTPArgument.always_encode">false</boolProp><boolProp name="HTTPArgument.use_equals">true</boolProp><stringProp name="Argument.value">{"correo":"render.probe.20261009@example.com"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">pwa-n2mh.onrender.com</stringProp>
           <stringProp name="HTTPSampler.port" />
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-          <stringProp name="HTTPSampler.path">/clientes/consulta</stringProp>
+          <stringProp name="HTTPSampler.path">/clientes/busqueda</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1788,7 +1788,7 @@
           <stringProp name="HTTPSampler.response_timeout">60000</stringProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="GET token tras baja denegado -&gt; 401 headers" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="POST busqueda token tras baja denegado -&gt; 401 headers" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp elementType="Header">
                 <stringProp name="Header.name">Accept</stringProp>
@@ -1801,7 +1801,7 @@
             <elementProp elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp></collectionProp>
           </HeaderManager>
           <hashTree />
-          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="GET token tras baja denegado -&gt; 401 expected status" enabled="true">
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="POST busqueda token tras baja denegado -&gt; 401 expected status" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="parameters">401</stringProp>
             <stringProp name="filename" />

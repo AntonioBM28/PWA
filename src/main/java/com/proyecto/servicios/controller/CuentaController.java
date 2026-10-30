@@ -29,14 +29,6 @@ public class CuentaController {
         this.cuentaService = cuentaService;
     }
 
-    @Operation(summary = "Consultar una cuenta por numero de cuenta",
-            description = "Recibe numeroCuenta en el cuerpo. Un CLIENTE solo puede consultar sus propias cuentas")
-    @PreAuthorize(Permisos.EJECUTIVO_O_DUENO_DE_LA_CUENTA)
-    @PostMapping(value = "/cuentas/consulta", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CuentaDetalleResponse> consultarCuenta(@Valid @RequestBody CuentaNumeroRequest request) {
-        return new ResponseEntity<>(cuentaService.consultarCuenta(request.getNumeroCuenta()), HttpStatus.OK);
-    }
-
     @Operation(summary = "Consultar el saldo de una cuenta",
             description = "Recibe numeroCuenta en el cuerpo. Un CLIENTE solo puede consultar el saldo de sus propias cuentas")
     @PreAuthorize(Permisos.EJECUTIVO_O_DUENO_DE_LA_CUENTA)
@@ -46,8 +38,8 @@ public class CuentaController {
     }
 
     @Operation(summary = "Consultar cuentas",
-            description = "Filtra por cliente (clienteId) y/o por estatus; sin filtros devuelve todas (paginadas). "
-                    + "Un CLIENTE debe enviar su propio clienteId")
+            description = "Combina numeroCuenta, correoCliente y estatus; sin filtros devuelve todas (paginadas). "
+                    + "Un CLIENTE debe enviar su propio correo")
     @PreAuthorize(Permisos.EJECUTIVO_O_CLIENTE_DEL_FILTRO)
     @PostMapping(value = "/cuentas/busqueda", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CuentasResponse> consultarCuentas(@Valid @RequestBody CuentaFiltro filtro) {

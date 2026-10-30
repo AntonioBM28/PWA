@@ -29,6 +29,16 @@ public class ControlAcceso {
         return propio != null && propio.equals(clienteId);
     }
 
+    /** true si el correo del filtro coincide con el claim correo del JWT autenticado. */
+    public boolean esCorreoPropio(String correo) {
+        Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
+        if (!(autenticacion instanceof JwtAuthenticationToken jwt) || correo == null) {
+            return false;
+        }
+        String correoAutenticado = jwt.getToken().getClaimAsString(TokenService.CLAIM_CORREO);
+        return correoAutenticado != null && correo.equalsIgnoreCase(correoAutenticado);
+    }
+
     /** true si la cuenta pertenece al cliente autenticado. */
     public boolean esCuentaPropia(String numeroCuenta) {
         Integer propio = clienteIdActual();

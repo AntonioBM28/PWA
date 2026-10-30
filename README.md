@@ -87,15 +87,13 @@ En Swagger, abre `POST /auth/login`, envía esas credenciales y copia el valor d
 |---|---|---|
 | `POST` | `/auth/login` | Público; inicia sesión y devuelve JWT. |
 | `POST` | `/clientes` | Público; registra cliente, domicilio, cuenta y usuario. |
-| `POST` | `/clientes/busqueda` | Ejecutivo; recibe filtros JSON opcionales combinables y paginados. |
-| `POST` | `/clientes/consulta` | Ejecutivo o el propio cliente; recibe `clienteId` en JSON. |
+| `POST` | `/clientes/busqueda` | Ejecutivo; el cliente autenticado puede consultar sus datos indicando el correo propio. Filtros JSON combinables y paginados. |
 | `PATCH` | `/clientes` | Ejecutivo o el propio cliente; recibe `clienteId` y `cambios` en JSON. Actualización parcial y baja/reactivación lógica. CURP y RFC son inmutables. |
-| `POST` | `/cuentas/busqueda` | Ejecutivo; recibe `clienteId` y/o `estatus` en JSON. Cliente: debe indicar su propio `clienteId`. |
-| `POST` | `/cuentas/consulta` | Ejecutivo o propietario; recibe `numeroCuenta` en JSON. |
+| `POST` | `/cuentas/busqueda` | Ejecutivo; combina `numeroCuenta`, `correoCliente` y/o `estatus` en JSON. Cliente: debe filtrar por su propio correo o número de cuenta. |
 | `POST` | `/cuentas/saldo` | Ejecutivo o propietario; recibe `numeroCuenta` en JSON. |
 | `POST` | `/cuentas` | Ejecutivo; crea cuenta para cliente activo. |
 | `PATCH` | `/cuentas` | Ejecutivo; recibe `numeroCuenta` y modifica estatus. |
-| `POST` | `/usuarios/filtro` | Ejecutivo; recibe en JSON los filtros combinables de correo, estatus, cliente y paginación. |
+| `POST` | `/usuarios/filtro` | Ejecutivo; recibe en JSON los filtros combinables de correo, estatus y paginación. |
 | `PUT` | `/usuarios/agregar` | Ejecutivo; agrega usuario a cliente activo sin usuario. |
 | `POST` | `/codigos-postales/consulta` | Público; recibe `codigoPostal` en JSON y consulta estado, municipio y colonias. |
 | `GET` | `/productos` | Público; consulta el catálogo de productos externo. |

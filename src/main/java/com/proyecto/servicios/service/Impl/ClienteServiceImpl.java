@@ -206,12 +206,6 @@ public class ClienteServiceImpl implements ClienteService {
         return response;
     }
 
-    @Override
-    public ClienteDetalleResponse consultarCliente(Integer id) {
-        Cliente cliente = buscarCliente(id);
-        return detalle(cliente, MENSAJE_EXITO);
-    }
-
     private void validarRangoFechas(LocalDate desde, LocalDate hasta) {
         if (desde != null && hasta != null && desde.isAfter(hasta)) {
             throw new ValidacionException("La fecha de registro inicial no puede ser posterior a la final");

@@ -9,8 +9,6 @@ import com.proyecto.servicios.model.onboarding.SaldoResponse;
 
 public interface CuentaService {
 
-    CuentaDetalleResponse consultarCuenta(String numeroCuenta);
-
     CuentasResponse consultarCuentas(CuentaFiltro filtro);
 
     SaldoResponse consultarSaldo(String numeroCuenta);

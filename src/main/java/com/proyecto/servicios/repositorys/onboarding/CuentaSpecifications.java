@@ -6,15 +6,21 @@ import org.springframework.data.jpa.domain.Specification;
 
 /**
  * Filtros de busqueda de cuentas. Si el valor es nulo, el criterio no se aplica.
- * clienteId usa ix_cuentas_cliente y estatus usa ix_cuentas_estatus.
+ * correoCliente identifica al propietario mediante su correo unico; estatus usa ix_cuentas_estatus.
  */
 public final class CuentaSpecifications {
 
     private CuentaSpecifications() {
     }
 
-    public static Specification<Cuenta> deCliente(Integer clienteId) {
-        return (root, query, cb) -> clienteId == null ? null : cb.equal(root.get("cliente").get("id"), clienteId);
+    public static Specification<Cuenta> conNumeroCuenta(String numeroCuenta) {
+        return (root, query, cb) -> numeroCuenta == null ? null
+                : cb.equal(root.get("numeroCuenta"), numeroCuenta);
+    }
+
+    public static Specification<Cuenta> deCorreoCliente(String correoCliente) {
+        return (root, query, cb) -> correoCliente == null ? null
+                : cb.equal(cb.lower(root.get("cliente").get("correo")), correoCliente.toLowerCase());
     }
 
     public static Specification<Cuenta> conEstatus(EstatusCuenta estatus) {
