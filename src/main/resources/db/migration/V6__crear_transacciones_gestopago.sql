@@ -3,7 +3,7 @@ CREATE TABLE onboarding.transacciones (
     cliente_id INTEGER NOT NULL REFERENCES onboarding.clientes(id) ON DELETE RESTRICT,
     cuenta_id INTEGER NOT NULL REFERENCES onboarding.cuentas(id) ON DELETE RESTRICT,
     clave_idempotencia VARCHAR(64) NOT NULL,
-    huella_solicitud VARCHAR(64) NOT NULL,
+    huella_solicitud CHAR(64) NOT NULL,
     upc VARCHAR(15) NOT NULL,
     payload_cifrado TEXT NOT NULL,
     random_proveedor VARCHAR(32) NOT NULL,
