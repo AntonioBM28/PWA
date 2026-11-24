@@ -9,7 +9,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Filtros de GET /usuarios/filtro. Son opcionales y se combinan entre si (AND); la paginacion
+ * Filtros de POST /usuarios/consulta (cuerpo JSON). Son opcionales y se combinan entre si (AND); la paginacion
  * viene de FiltroPaginado.
  */
 @Getter

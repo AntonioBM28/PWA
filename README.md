@@ -15,6 +15,13 @@ API REST para registrar personas físicas, administrar su domicilio, crear cuent
 
 Los controladores exponen la API; los servicios contienen las reglas de negocio; los repositorios acceden a PostgreSQL con JPA; las entidades representan el modelo persistente. Clientes, domicilios, cuentas y usuarios se encuentran en el esquema `onboarding` de PostgreSQL. Las migraciones se encuentran en `src/main/resources/db/migration`.
 
+Las validaciones propias de la petición se declaran en sus DTOs y se ejecutan con `@Valid`; `GlobalExceptionHandler` las transforma en respuestas `400` consistentes. Las consultas de listas aceptan `pagina` y `tamanio`: el cliente puede elegir el tamaño entre 1 y 100, y la API aplica un orden estable para que la paginación sea reproducible. Las reglas que dependen de datos persistidos —por ejemplo, unicidad, existencia y estado activo— permanecen en los servicios.
+
+### Sobrecarga y sobrescritura en Java
+
+- **Sobrecarga:** `ClienteMapper` declara `toEntity` para `ClienteRequest` y `DomicilioRequest`, y `actualizar` para los DTOs de cliente y domicilio. El nombre coincide, pero la firma de parámetros determina qué transformación se ejecuta.
+- **Sobrescritura:** las implementaciones de `ClienteService`, `CuentaService` y `UsuarioService` marcan sus operaciones con `@Override`. Así se cumple el contrato declarado por cada interfaz y el compilador detecta firmas incompatibles.
+
 La creación del cliente se realiza en una transacción: registra cliente y domicilio, genera una cuenta con saldo inicial y crea el usuario con contraseña BCrypt. La baja lógica conserva los registros, pero desactiva las cuentas y el usuario asociado.
 
 ## Diagrama entidad–relación
@@ -35,15 +42,22 @@ Configura los valores por variables de entorno (Spring Boot las usa para sobresc
 
 Variables principales:
 
-| Variable | Uso |
-|---|---|
-| `SPRING_DATASOURCE_URL` | URL JDBC de PostgreSQL/Supabase. |
-| `SPRING_DATASOURCE_USERNAME` | Usuario de base de datos. |
-| `SPRING_DATASOURCE_PASSWORD` | Contraseña de base de datos. |
-| `SPRING_DATA_MONGODB_URI` | URI de MongoDB. |
-| `ONBOARDING_JWT_SECRETO` | Llave HS256 codificada en Base64, de al menos 256 bits. |
-| `ONBOARDING_EJECUTIVO_CORREO` | Correo del ejecutivo inicial. |
-| `ONBOARDING_EJECUTIVO_PASSWORD` | Contraseña inicial del ejecutivo; cumple la política de contraseñas. |
+| Variable                          | Uso                                                                                                 |
+| --------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `SPRING_DATASOURCE_URL`           | URL JDBC de PostgreSQL/Supabase.                                                                    |
+| `SPRING_DATASOURCE_USERNAME`      | Usuario de base de datos.                                                                           |
+| `SPRING_DATASOURCE_PASSWORD`      | Contraseña de base de datos.                                                                        |
+| `SPRING_DATA_MONGODB_URI`         | URI de MongoDB.                                                                                     |
+| `ONBOARDING_JWT_SECRETO`          | Llave HS256 codificada en Base64, de al menos 256 bits.                                             |
+| `ONBOARDING_EJECUTIVO_CORREO`     | Correo del ejecutivo inicial.                                                                       |
+| `ONBOARDING_EJECUTIVO_PASSWORD`   | Contraseña inicial del ejecutivo; cumple la política de contraseñas.                                |
+| `GESTOPAGO_AUTH_PASSWORD`         | Contraseña de autenticación de GestoPago.                                                           |
+| `GESTOPAGO_API_KEY`               | API key opcional asignada por GestoPago.                                                            |
+| `GESTOPAGO_PAYLOAD_SECRET_KEY`    | Clave AES-256 Base64 asignada por GestoPago; no uses la clave de ejemplo de la documentación.       |
+| `GESTOPAGO_PAYLOAD_IV`            | IV Base64 de 16 bytes asignado por GestoPago.                                                       |
+| `GESTOPAGO_REPLAY_ENCRYPTION_KEY` | Clave local Base64 de 32 bytes para cifrar con AES-GCM el payload que se conserva para `confirmTx`. |
+| `GESTOPAGO_UNIDAD`                | Unidad/sucursal de 3–25 caracteres enviada a GestoPago.                                             |
+| `GESTOPAGO_BEARER_TOKEN`          | Token Bearer opcional del catálogo; si se omite, se usa el token renovado guardado en PostgreSQL.   |
 
 El ejecutivo se crea al arrancar si su correo no existe. Su contraseña se almacena con BCrypt. Si el usuario ya existe, el inicializador no cambia su contraseña.
 
@@ -70,37 +84,34 @@ Completa los valores entre comillas con los datos de tu entorno. Para Render, co
 
 Para endpoints protegidos, llama `POST /auth/login` con `{ "correo": "...", "password": "..." }`. Copia el campo `token` de la respuesta y usa **Authorize** en Swagger; pega el JWT (Swagger añade el esquema Bearer). El rol `EJECUTIVO` administra clientes/cuentas/usuarios. El rol `CLIENTE` puede consultar y actualizar sus propios datos y cuentas, sujeto a las reglas del endpoint.
 
-### Credenciales del ejecutivo para Swagger
+### Acceso ejecutivo para Swagger
 
-No existe un endpoint para crear usuarios con rol `EJECUTIVO`. El usuario inicial se crea desde la configuración de la aplicación. Para iniciar sesión en el entorno configurado en `application.properties`, usa:
+No existe un endpoint para crear usuarios con rol `EJECUTIVO`. El usuario inicial se crea desde la configuración de la aplicación. Define `ONBOARDING_EJECUTIVO_CORREO` y `ONBOARDING_EJECUTIVO_PASSWORD` en el entorno antes de iniciar sesión; no publiques credenciales en el repositorio.
 
-| Campo | Valor |
-|---|---|
-| Correo | `ejecutivo@banco.com` |
-| Contraseña | `Ejec#rKLGcfVa9a9a` |
-
-En Swagger, abre `POST /auth/login`, envía esas credenciales y copia el valor de `token` de la respuesta. Después pulsa **Authorize**, pega el token y autoriza. Así podrás probar los endpoints que requieren rol ejecutivo, como la consulta global de clientes, creación de cuentas y administración de usuarios. Si la cuenta ejecutiva ya existía en la base de datos con otra contraseña, el inicializador no la reemplaza; en ese caso estas credenciales pueden no coincidir con la cuenta persistida.
+En Swagger, abre `POST /auth/login`, envía las credenciales del entorno y copia el valor de `token` de la respuesta. Después pulsa **Authorize**, pega el token y autoriza. Si la cuenta ejecutiva ya existía en la base de datos, el inicializador no cambia su contraseña.
 
 ## Endpoints principales
 
-| Método | Ruta | Acceso / función |
-|---|---|---|
-| `POST` | `/auth/login` | Público; inicia sesión y devuelve JWT. |
-| `POST` | `/clientes` | Público; registra cliente, domicilio, cuenta y usuario. |
-| `GET` | `/clientes` | Ejecutivo; lista paginada y filtra por nombre, apellidos, CURP, RFC, correo, número de cuenta, estatus y fechas. |
-| `GET` | `/clientes/{id}` | Ejecutivo o el propio cliente. |
-| `PATCH` | `/clientes/{id}` | Ejecutivo o el propio cliente; actualización parcial y baja/reactivación lógica. CURP y RFC son inmutables. |
-| `GET` | `/cuentas` | Ejecutivo; filtra por `clienteId` y/o `estatus`. Cliente: debe indicar su `clienteId`. |
-| `GET` | `/cuentas/{numeroCuenta}` | Ejecutivo o propietario. |
-| `GET` | `/cuentas/{numeroCuenta}/saldo` | Ejecutivo o propietario. |
-| `POST` | `/cuentas` | Ejecutivo; crea cuenta para cliente activo. |
-| `PATCH` | `/cuentas/{numeroCuenta}` | Ejecutivo; modifica estatus. |
-| `GET` | `/usuarios/filtro` | Ejecutivo; filtra por correo, estatus o cliente. |
-| `PUT` | `/usuarios/agregar` | Ejecutivo; agrega usuario a cliente activo sin usuario. |
-| `GET` | `/codigos-postales/{codigoPostal}` | Público; consulta CP mexicano, estado, municipio y colonias. |
-| `GET` | `/productos` | Público; consulta el catálogo de productos externo. |
+| Método  | Ruta                               | Acceso / función                                                                                                 |
+| ------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `POST`  | `/auth/login`                      | Público; inicia sesión y devuelve JWT.                                                                           |
+| `POST`  | `/clientes`                        | Público; registra cliente, domicilio, cuenta y usuario.                                                          |
+| `POST`  | `/clientes/consulta`               | Ejecutivo; lista paginada y filtra por nombre, apellidos, CURP, RFC, correo, número de cuenta, estatus y fechas. |
+| `POST`  | `/clientes/detalle`                | Ejecutivo o el propio cliente; cuerpo `{ "id": 1 }`.                                                             |
+| `PATCH` | `/clientes`                        | Ejecutivo o el propio cliente; `id` en el cuerpo, actualización parcial y baja/reactivación lógica. CURP y RFC son inmutables. |
+| `POST`  | `/cuentas/consulta`                | Ejecutivo; filtra por `clienteId` y/o `estatus`. Cliente: debe indicar su `clienteId`.                           |
+| `POST`  | `/cuentas/detalle`                 | Ejecutivo o propietario; cuerpo `{ "numeroCuenta": "1000000001" }`.                                              |
+| `POST`  | `/cuentas/saldo`                   | Ejecutivo o propietario; cuerpo `{ "numeroCuenta": "1000000001" }`.                                              |
+| `POST`  | `/cuentas`                         | Ejecutivo; crea cuenta para cliente activo.                                                                      |
+| `PATCH` | `/cuentas`                         | Ejecutivo; `numeroCuenta` en el cuerpo, modifica estatus.                                                        |
+| `POST`  | `/usuarios/consulta`               | Ejecutivo; filtra por correo, estatus o cliente.                                                                 |
+| `PUT`   | `/usuarios/agregar`                | Ejecutivo; agrega usuario a cliente activo sin usuario.                                                          |
+| `POST`  | `/codigos-postales/consulta`       | Público; cuerpo `{ "codigoPostal": "44100" }`, consulta CP mexicano, estado, municipio y colonias.               |
+| `GET`   | `/productos`                       | Público; consulta el catálogo de productos externo.                                                              |
+| `POST`  | `/transacciones`                   | Propietario de la cuenta o ejecutivo; `numeroCuenta` en el cuerpo y header `Idempotency-Key`.                     |
+| `POST`  | `/transacciones/consulta`          | Cuerpo `{ "id": "<uuid>" }`; consulta el estado de una transacción.                                              |
 
-Las listas usan `pagina` (inicia en 0) y `tamanio` (por defecto 20, máximo 100). El detalle completo de parámetros y modelos está en Swagger.
+Ningún endpoint usa `@PathVariable` ni parámetros de consulta: identificadores y criterios de búsqueda viajan en el cuerpo JSON y se validan con `@Valid`. Las listas usan `pagina` (inicia en 0) y `tamanio` (por defecto 20, máximo 100) dentro del mismo cuerpo. El detalle completo de modelos está en Swagger.
 
 ## Validaciones y manejo de errores
 
@@ -115,8 +126,6 @@ Las pruebas unitarias están en `src/test/java`. Ejecución:
 ```powershell
 ./gradlew.bat test
 ```
-
-JMeter está instalado en el equipo y se creó un plan en `pruebas/jmeter/render-onboarding.jmx`. Las ejecuciones intentadas no produjeron resultados HTTP válidos por un error de configuración del sampler (`ClassCastException`); por ello no se presentan como evidencia de rendimiento ni de verificación exitosa. Las pruebas funcionales manuales deben documentarse con capturas de Swagger/JMeter y fecha, endpoint, datos de prueba, código HTTP y resultado esperado/obtenido.
 
 ## Entregables del proyecto
 

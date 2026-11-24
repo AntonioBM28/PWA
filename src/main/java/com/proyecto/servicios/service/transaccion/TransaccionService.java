@@ -39,6 +39,8 @@ public class TransaccionService {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final DateTimeFormatter HORA_LOCAL = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static final String TELEFONO_SERVICIO = "1111111111";
+    static final int CODIGO_EXITO = 0;
+    static final int CODIGO_RECHAZO = 1;
 
     private final CatProductoRepository catalogo;
     private final TransaccionPersistenceService persistencia;
@@ -260,10 +262,20 @@ public class TransaccionService {
             case RECHAZADA -> "Operación rechazada; el saldo fue liberado";
             case CONCILIACION, PENDIENTE -> "Operación pendiente de confirmación; el monto está retenido";
         };
-        return TransaccionResponse.builder().id(tx.getId()).estado(tx.getEstado()).monto(tx.getMonto())
-                .codigoProveedor(tx.getCodigoProveedor()).idTx(tx.getIdTx())
-                .numeroAutorizacion(tx.getNumeroAutorizacion()).pin(tx.getPin()).folio(tx.getFolio())
-                .leyenda(tx.getLeyenda()).fechaCreacion(tx.getFechaCreacion()).mensaje(mensaje).build();
+        TransaccionResponse response = new TransaccionResponse();
+        response.setCodigo(tx.getEstado() == EstadoTransaccion.RECHAZADA ? CODIGO_RECHAZO : CODIGO_EXITO);
+        response.setMensaje(mensaje);
+        response.setId(tx.getId());
+        response.setEstado(tx.getEstado());
+        response.setMonto(tx.getMonto());
+        response.setCodigoProveedor(tx.getCodigoProveedor());
+        response.setIdTx(tx.getIdTx());
+        response.setNumeroAutorizacion(tx.getNumeroAutorizacion());
+        response.setPin(tx.getPin());
+        response.setFolio(tx.getFolio());
+        response.setLeyenda(tx.getLeyenda());
+        response.setFechaCreacion(tx.getFechaCreacion());
+        return response;
     }
 
     private String huella(String cuenta, CrearTransaccionRequest request) {

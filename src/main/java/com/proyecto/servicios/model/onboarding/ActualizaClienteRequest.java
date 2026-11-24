@@ -4,13 +4,18 @@ import com.proyecto.servicios.enums.EstadoCivil;
 import com.proyecto.servicios.enums.Sexo;
 import com.proyecto.servicios.validation.MayorDeEdad;
 import com.proyecto.servicios.validation.Patrones;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +27,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Actualizacion parcial de un cliente (PATCH): solo se modifican los campos enviados; un campo
+ * Actualizacion parcial de un cliente (PATCH /clientes): el campo id indica que cliente se
+ * actualiza y no cuenta como cambio. Solo se modifican los campos enviados; un campo
  * nulo o ausente no cambia. En los campos opcionales (segundo nombre, telefono alternativo y
  * numero interior) un valor vacio ("") elimina el dato.
  * <p>
@@ -35,6 +41,12 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class ActualizaClienteRequest {
+
+    // ----- Cliente a actualizar (identifica al registro, no se modifica) -----
+    @Schema(description = "Id del cliente a actualizar", example = "1")
+    @NotNull(message = "El id del cliente es obligatorio")
+    @Positive(message = "El id del cliente debe ser un numero positivo")
+    private Integer id;
 
     // ----- Datos personales -----
     @Size(min = 2, max = 50, message = "El nombre " + Patrones.MENSAJE_LONGITUD_NOMBRE)
@@ -65,6 +77,7 @@ public class ActualizaClienteRequest {
 
     // ----- Datos de contacto -----
     @Size(max = 100, message = Patrones.MENSAJE_LONGITUD_CORREO)
+    @Email(message = Patrones.MENSAJE_CORREO)
     @Pattern(regexp = Patrones.CORREO, message = Patrones.MENSAJE_CORREO)
     private String correo;
 
@@ -125,5 +138,11 @@ public class ActualizaClienteRequest {
                 nacionalidad, estadoCivil, correo, telefonoMovil, telefonoAlternativo, ocupacion, empresa,
                 ingresoMensual, activo)
                 && (domicilio == null || domicilio.sinCambios());
+    }
+
+    @AssertTrue(message = "No se envio ningun dato para actualizar")
+    @JsonIgnore
+    public boolean isSolicitudConCambios() {
+        return !sinCambios();
     }
 }

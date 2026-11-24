@@ -254,16 +254,6 @@ class ClienteServiceImplTest {
     }
 
     @Test
-    void consultarClientes_rangoDeFechasInvertido() {
-        ClienteFiltro filtro = new ClienteFiltro();
-        filtro.setFechaRegistroDesde(LocalDate.of(2026, 12, 31));
-        filtro.setFechaRegistroHasta(LocalDate.of(2026, 1, 1));
-
-        assertThrows(ValidacionException.class, () -> service.consultarClientes(filtro));
-        verifyNoInteractions(clienteRepository);
-    }
-
-    @Test
     void consultarCliente_incluyeDomicilioYCuentas() {
         when(clienteRepository.findById(ID_CLIENTE)).thenReturn(Optional.of(clienteExistente(true)));
         when(cuentaRepository.findByClienteIdOrderByFechaCreacion(ID_CLIENTE)).thenReturn(List.of(cuenta()));
@@ -282,14 +272,6 @@ class ClienteServiceImplTest {
     }
 
     // ===================================================================== Actualizacion
-
-    @Test
-    void actualizarCliente_sinDatos_rechazaLaPeticion() {
-        ActualizaClienteRequest cambios = new ActualizaClienteRequest();
-
-        assertThrows(ValidacionException.class, () -> service.actualizarCliente(ID_CLIENTE, cambios));
-        verifyNoInteractions(clienteRepository);
-    }
 
     @Test
     void actualizarCliente_clienteNoExiste() {

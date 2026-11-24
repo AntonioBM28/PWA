@@ -1,6 +1,8 @@
 package com.proyecto.servicios.exception;
 
 import com.proyecto.servicios.model.GenericResponse;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -66,6 +68,20 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<GenericResponse> respuesta = handler.handleCuerpoIlegible(ex);
 
         assertEquals(HttpStatus.PAYLOAD_TOO_LARGE, respuesta.getStatusCode());
+    }
+
+    @Test
+    void formatoInvalido_noDevuelveElValorEnviado() {
+        InvalidFormatException causa = InvalidFormatException.from(null, "formato invalido", "secreto", Integer.class);
+        causa.prependPath(new JsonMappingException.Reference(null, "password"));
+        HttpMessageNotReadableException ex = new HttpMessageNotReadableException("JSON invalido", causa,
+                new MockHttpInputMessage(new byte[0]));
+
+        ResponseEntity<GenericResponse> respuesta = handler.handleCuerpoIlegible(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, respuesta.getStatusCode());
+        assertEquals("Formato no valido para el campo password", respuesta.getBody().getMensaje());
+        assertFalse(respuesta.getBody().getMensaje().contains("secreto"));
     }
 
     @Test

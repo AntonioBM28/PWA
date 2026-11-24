@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,28 +41,29 @@ public class GestoPagoXmlDecoder implements Decoder {
             throw new DecodeException(response.status(), "Tipo no soportado para XML: " + type, response.request());
         }
         try (InputStream body = response.body().asInputStream()) {
-            XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(body);
-            try {
-                return obtenerContexto(clase).createUnmarshaller().unmarshal(reader, clase).getValue();
-            } finally {
-                reader.close();
-            }
+            return leerXml(body, clase);
         } catch (JAXBException | XMLStreamException e) {
             throw new DecodeException(response.status(), "No fue posible leer el XML de GestoPago", response.request(), e);
         }
     }
 
+    /** Sobrecarga para XML ya recibido como texto (respuestas de transacciones). */
     public <T> T decode(String xml, Class<T> type) {
         if (xml == null || xml.isBlank()) return null;
-        try (InputStream body = new ByteArrayInputStream(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8))) {
-            XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(body);
-            try {
-                return obtenerContexto(type).createUnmarshaller().unmarshal(reader, type).getValue();
-            } finally {
-                reader.close();
-            }
+        try (InputStream body = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))) {
+            return leerXml(body, type);
         } catch (JAXBException | XMLStreamException | IOException e) {
-            throw new IllegalArgumentException("La respuesta XML de GestoPago no es válida");
+            throw new IllegalArgumentException("La respuesta XML de GestoPago no es válida", e);
+        }
+    }
+
+    /** Logica comun de ambas sobrecargas de decode: lectura segura (sin DTD ni entidades externas). */
+    private <T> T leerXml(InputStream body, Class<T> tipo) throws JAXBException, XMLStreamException {
+        XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(body);
+        try {
+            return obtenerContexto(tipo).createUnmarshaller().unmarshal(reader, tipo).getValue();
+        } finally {
+            reader.close();
         }
     }
 

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,32 @@ class FiltroPaginadoValidationTest {
 
         assertEquals(0, filtro.getPagina());
         assertEquals(20, filtro.getTamanio());
+    }
+
+    @Test
+    void rangoDeFechasInvertido_seRechazaEnElRequest() {
+        ClienteFiltro filtro = new ClienteFiltro();
+        filtro.setFechaRegistroDesde(LocalDate.of(2026, 12, 31));
+        filtro.setFechaRegistroHasta(LocalDate.of(2026, 1, 1));
+
+        assertTrue(mensajes(filtro).contains("La fecha de registro inicial no puede ser posterior a la final"));
+    }
+
+    @Test
+    void tamanioDePagina_esManipulableDentroDelLimitePermitido() {
+        CuentaFiltro filtro = new CuentaFiltro();
+        filtro.setTamanio(50);
+
+        assertTrue(mensajes(filtro).isEmpty());
+        assertEquals(50, filtro.getTamanio());
+    }
+
+    @Test
+    void tamanioSuperiorAlMaximo_seRechaza() {
+        CuentaFiltro filtro = new CuentaFiltro();
+        filtro.setTamanio(101);
+
+        assertTrue(mensajes(filtro).contains("El tamanio de pagina admite maximo 100"));
     }
 
     private static Set<String> mensajes(Object filtro) {

@@ -37,16 +37,18 @@ class ActualizaClienteRequestValidationTest {
     }
 
     @Test
-    void peticionVacia_esValidaPeroNoTraeCambios() {
+    void peticionVacia_seRechazaEnValidacionDelRequest() {
         ActualizaClienteRequest request = new ActualizaClienteRequest();
 
-        assertTrue(validator.validate(request).isEmpty());
+        assertTrue(validator.validate(request).stream()
+                .anyMatch(error -> error.getMessage().equals("No se envio ningun dato para actualizar")));
         assertTrue(request.sinCambios());
     }
 
     @Test
     void camposOpcionalesVacios_sonValidosParaEliminarlos() {
         ActualizaClienteRequest request = new ActualizaClienteRequest();
+        request.setId(1);
         request.setSegundoNombre("");
         request.setTelefonoAlternativo("");
         ActualizaDomicilioRequest domicilio = new ActualizaDomicilioRequest();
@@ -73,6 +75,8 @@ class ActualizaClienteRequestValidationTest {
 
     static Stream<Arguments> casosInvalidos() {
         return Stream.of(
+                caso("id obligatorio", r -> r.setId(null), "El id del cliente es obligatorio"),
+                caso("id negativo", r -> r.setId(-1), "El id del cliente debe ser un numero positivo"),
                 caso("no se modifica la CURP", r -> r.setCurp("BAMJ900512HGTLRS09"), "La CURP no se puede modificar"),
                 caso("no se modifica el RFC", r -> r.setRfc("BAMJ900512AB1"), "El RFC no se puede modificar"),
                 caso("no se modifica el numero de cuenta", r -> r.setNumeroCuenta("1000000000"), "El numero de cuenta no se puede modificar"),

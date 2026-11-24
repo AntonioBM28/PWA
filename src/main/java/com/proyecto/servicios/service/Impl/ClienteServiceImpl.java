@@ -10,7 +10,6 @@ import com.proyecto.servicios.exception.ClienteNoEncontradoException;
 import com.proyecto.servicios.exception.CorreoDuplicadoException;
 import com.proyecto.servicios.exception.CurpDuplicadaException;
 import com.proyecto.servicios.exception.RfcDuplicadoException;
-import com.proyecto.servicios.exception.ValidacionException;
 import com.proyecto.servicios.mapper.ClienteMapper;
 import com.proyecto.servicios.mapper.CuentaMapper;
 import com.proyecto.servicios.model.onboarding.ActualizaClienteRequest;
@@ -182,7 +181,6 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public ClientesResponse consultarClientes(ClienteFiltro filtro) {
-        validarRangoFechas(filtro.getFechaRegistroDesde(), filtro.getFechaRegistroHasta());
         Specification<Cliente> criterios = Specification
                 .where(nombreEmpiezaCon(filtro.getNombre()))
                 .and(apellidoPaternoEmpiezaCon(filtro.getApellidoPaterno()))
@@ -212,12 +210,6 @@ public class ClienteServiceImpl implements ClienteService {
         return detalle(cliente, MENSAJE_EXITO);
     }
 
-    private void validarRangoFechas(LocalDate desde, LocalDate hasta) {
-        if (desde != null && hasta != null && desde.isAfter(hasta)) {
-            throw new ValidacionException("La fecha de registro inicial no puede ser posterior a la final");
-        }
-    }
-
     private OffsetDateTime inicioDelDia(LocalDate fecha) {
         return fecha == null ? null : fecha.atStartOfDay(zonaHoraria).toOffsetDateTime();
     }
@@ -230,9 +222,6 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public ClienteDetalleResponse actualizarCliente(Integer id, ActualizaClienteRequest request) {
-        if (request.sinCambios()) {
-            throw new ValidacionException("No se envio ningun dato para actualizar");
-        }
         log.info("Inicio actualizacion de cliente: id={}", id);
         Cliente cliente = buscarCliente(id);
 

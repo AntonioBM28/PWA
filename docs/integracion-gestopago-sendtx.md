@@ -16,7 +16,7 @@ Contrato consultado: [PuntoRed API Technical Specification en Postman](https://d
 
 ## Flujo de la aplicación
 
-1. `POST /cuentas/{numeroCuenta}/transacciones` requiere JWT, autorización del propietario (o EJECUTIVO), `Idempotency-Key` y DTO validado.
+1. `POST /transacciones` requiere JWT, autorización del propietario de `numeroCuenta` (enviado en el cuerpo) o EJECUTIVO, `Idempotency-Key` y DTO validado.
 2. Se valida el producto y su servicio contra MongoDB. El precio y el `tipoFront` provienen del catálogo; el cliente no puede enviar precios o UPC.
 3. Se genera el JSON y se cifra para el proveedor. El UPC y la huella de la solicitud quedan vinculados a la clave idempotente y al cliente.
 4. En una transacción PostgreSQL corta se bloquea la cuenta, se verifica estado del cliente/cuenta y saldo, se descuenta el monto y se registra la operación `PENDIENTE`. El payload de repetición se cifra adicionalmente con AES-GCM usando una clave local independiente.
@@ -25,7 +25,7 @@ Contrato consultado: [PuntoRed API Technical Specification en Postman](https://d
 7. El job consulta `confirmTx` con los mismos datos criptográficos guardados. Si se confirma aplicada, finaliza como aprobada; si la respuesta dice que no se aplicó, reembolsa. Sin respuesta definitiva tras 24 horas, conserva el estado y el débito para conciliación manual.
 8. Las repeticiones de una misma `Idempotency-Key` y mismo contenido devuelven la operación existente sin llamar de nuevo a `sendTx`; reutilizar la clave con otro contenido responde conflicto.
 
-Las operaciones pendientes devuelven HTTP 202 y se consultan con `GET /transacciones/{id}`. El endpoint nunca devuelve tokens, payload cifrado ni mensajes crudos del proveedor. Los datos PIN/FOLIO solo se muestran a usuarios autorizados para consultar esa operación y no se escriben en logs.
+Las operaciones pendientes devuelven HTTP 202 y se consultan con `POST /transacciones/consulta` enviando `{ "id": "<uuid>" }`. El endpoint nunca devuelve tokens, payload cifrado ni mensajes crudos del proveedor. Los datos PIN/FOLIO solo se muestran a usuarios autorizados para consultar esa operación y no se escriben en logs.
 
 ## Configuración
 

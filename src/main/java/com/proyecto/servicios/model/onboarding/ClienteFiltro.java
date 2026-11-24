@@ -1,7 +1,10 @@
 package com.proyecto.servicios.model.onboarding;
 
 import com.proyecto.servicios.validation.Patrones;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -13,7 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 
 /**
- * Filtros de GET /clientes. Todos son opcionales y se combinan entre si (AND); la paginacion
+ * Filtros de POST /clientes/consulta (cuerpo JSON). Todos son opcionales y se combinan entre si (AND); la paginacion
  * viene de FiltroPaginado.
  */
 @Getter
@@ -45,6 +48,7 @@ public class ClienteFiltro extends FiltroPaginado {
     private String rfc;
 
     @Schema(description = "Correo electronico exacto", example = "maria.garcia@mail.com")
+    @Email(message = Patrones.MENSAJE_CORREO)
     @Pattern(regexp = Patrones.CORREO, message = Patrones.MENSAJE_CORREO)
     private String correo;
 
@@ -62,6 +66,13 @@ public class ClienteFiltro extends FiltroPaginado {
     @Schema(description = "Registrados hasta esta fecha (inclusive), formato AAAA-MM-DD", example = "2026-12-31")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fechaRegistroHasta;
+
+    @AssertTrue(message = "La fecha de registro inicial no puede ser posterior a la final")
+    @JsonIgnore
+    public boolean isRangoFechaRegistroValido() {
+        return fechaRegistroDesde == null || fechaRegistroHasta == null
+                || !fechaRegistroDesde.isAfter(fechaRegistroHasta);
+    }
 
     public void setNombre(String nombre) {
         this.nombre = StringUtils.trimToNull(nombre);
