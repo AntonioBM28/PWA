@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * Inicio de sesion con correo y contrasena.
  * <p>
@@ -42,7 +44,8 @@ public class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.registroIntentos = registroIntentos;
-        this.hashDeRelleno = passwordEncoder.encode("relleno-para-igualar-tiempos");
+        // Valor aleatorio en cada arranque: nadie conoce el texto original y no hay credencial fija en el código
+        this.hashDeRelleno = passwordEncoder.encode(UUID.randomUUID().toString());
     }
 
     @Override

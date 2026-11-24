@@ -49,6 +49,9 @@ public final class Patrones {
     /** Texto con al menos un caracter que no sea espacio. */
     public static final String NO_VACIO = "^(?s).*\\S.*$";
 
+    public static final String NUMERO_CUENTA = "^[0-9]{10}$";
+    public static final String MENSAJE_NUMERO_CUENTA = "El numero de cuenta debe contener 10 digitos";
+
     public static final String CODIGO_POSTAL = "^[0-9]{5}$";
     public static final String MENSAJE_CODIGO_POSTAL = "El codigo postal debe contener exactamente 5 digitos";
 

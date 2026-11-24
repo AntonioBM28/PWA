@@ -26,6 +26,10 @@ public final class UsuarioSpecifications {
         return (root, query, cb) -> activo == null ? null : cb.equal(root.get("activo"), activo);
     }
 
+    public static Specification<Usuario> deCliente(Integer clienteId) {
+        return (root, query, cb) -> clienteId == null ? null : cb.equal(root.get("cliente").get("id"), clienteId);
+    }
+
     static String escaparLike(String valor) {
         return valor.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }

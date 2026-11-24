@@ -25,8 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.proyecto.servicios.repositorys.onboarding.CuentaSpecifications.conEstatus;
-import static com.proyecto.servicios.repositorys.onboarding.CuentaSpecifications.conNumeroCuenta;
-import static com.proyecto.servicios.repositorys.onboarding.CuentaSpecifications.deCorreoCliente;
+import static com.proyecto.servicios.repositorys.onboarding.CuentaSpecifications.deCliente;
 
 /**
  * Consulta, apertura y cambio de estatus de cuentas. Regla de negocio: solo los clientes activos
@@ -59,10 +58,17 @@ public class CuentaServiceImpl implements CuentaService {
     }
 
     @Override
+    public CuentaDetalleResponse consultarCuenta(String numeroCuenta) {
+        return detalle(buscarCuenta(numeroCuenta), MENSAJE_EXITO);
+    }
+
+    @Override
     public CuentasResponse consultarCuentas(CuentaFiltro filtro) {
+        if (filtro.getClienteId() != null && !clienteRepository.existsById(filtro.getClienteId())) {
+            throw new ClienteNoEncontradoException(filtro.getClienteId());
+        }
         Specification<Cuenta> criterios = Specification
-                .where(conNumeroCuenta(filtro.getNumeroCuenta()))
-                .and(deCorreoCliente(filtro.getCorreoCliente()))
+                .where(deCliente(filtro.getClienteId()))
                 .and(conEstatus(filtro.getEstatus()));
         Page<Cuenta> pagina = cuentaRepository.findAll(criterios,
                 PageRequest.of(filtro.getPagina(), filtro.getTamanio(), ORDEN_CUENTAS));
