@@ -1,12 +1,12 @@
 package com.proyecto.servicios.model.onboarding;
 
 import com.proyecto.servicios.enums.EstadoCivil;
+import com.proyecto.servicios.enums.Ocupacion;
+import com.proyecto.servicios.enums.RangoIngresoMensual;
 import com.proyecto.servicios.enums.Sexo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
@@ -29,9 +29,9 @@ public class ClienteResponse {
     private String telefonoMovil;
     private String telefonoAlternativo;
     private DomicilioResponse domicilio;
-    private String ocupacion;
+    private Ocupacion ocupacion;
     private String empresa;
-    private BigDecimal ingresoMensual;
+    private RangoIngresoMensual rangoIngresoMensual;
     private Boolean activo;
     private OffsetDateTime fechaCreacion;
     private OffsetDateTime fechaActualizacion;

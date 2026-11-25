@@ -85,7 +85,9 @@ class ActualizaClienteRequestValidationTest {
                         "El segundo nombre debe tener entre 2 y 50 letras, o enviarse vacio para eliminarlo"),
                 caso("telefono alternativo invalido", r -> r.setTelefonoAlternativo("123"),
                         "El telefono alternativo debe contener exactamente 10 digitos, o enviarse vacio para eliminarlo"),
-                caso("ocupacion en blanco", r -> r.setOcupacion("   "), "La ocupacion no puede estar vacia"),
+                caso("ocupacion fuera del catalogo", r -> r.setOcupacion("Astronauta"), "La ocupacion no existe en el catalogo"),
+                caso("rango de ingreso fuera del tabulador", r -> r.setRangoIngresoMensual("25000"),
+                        "El rango de ingreso mensual no existe en el tabulador"),
                 caso("menor de edad", r -> r.setFechaNacimiento(LocalDate.now().minusYears(10)), "El cliente debe ser mayor de edad (18 anos o mas)"),
                 caso("correo invalido", r -> r.setCorreo("correo@invalido"), "El correo electronico no tiene un formato valido"),
                 caso("codigo postal invalido", r -> {

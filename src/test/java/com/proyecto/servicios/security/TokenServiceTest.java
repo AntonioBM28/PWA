@@ -1,9 +1,13 @@
 package com.proyecto.servicios.security;
 
 import com.proyecto.servicios.entity.onboarding.Cliente;
+import com.proyecto.servicios.entity.onboarding.Sesion;
 import com.proyecto.servicios.entity.onboarding.Usuario;
+import com.proyecto.servicios.enums.Plataforma;
 import com.proyecto.servicios.enums.Rol;
 import com.proyecto.servicios.repositorys.onboarding.UsuarioRepository;
+import com.proyecto.servicios.service.SesionService;
+import com.proyecto.servicios.service.SesionService.EstadoSesion;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,14 +19,17 @@ import org.springframework.security.oauth2.jwt.JwtException;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,14 +43,16 @@ class TokenServiceTest {
 
     private final SeguridadConfig config = new SeguridadConfig();
     private final SecretKey llave = config.llaveJwt(SECRETO);
-    private final TokenService tokenService = new TokenService(config.jwtEncoder(llave), 60);
+    private final TokenService tokenService = new TokenService(config.jwtEncoder(llave));
     private final JwtDecoder decoder = config.jwtDecoder(llave);
+    private final Sesion sesion = sesion();
 
     @Test
-    void generarToken_contieneUsuarioCorreoYCliente() {
-        Jwt jwt = decoder.decode(tokenService.generarToken(usuario()));
+    void generarToken_contieneUsuarioSesionCorreoYCliente() {
+        Jwt jwt = decoder.decode(tokenService.generarToken(usuario(), sesion));
 
         assertEquals("20", jwt.getSubject());
+        assertEquals(sesion.getId().toString(), jwt.getId());
         assertEquals("maria.garcia@mail.com", jwt.getClaimAsString(TokenService.CLAIM_CORREO));
         assertEquals(2L, ((Number) jwt.getClaim(TokenService.CLAIM_CLIENTE_ID)).longValue());
         assertEquals(Duration.ofMinutes(60), Duration.between(jwt.getIssuedAt(), jwt.getExpiresAt()));
@@ -53,14 +62,14 @@ class TokenServiceTest {
     @Test
     void tokenFirmadoConOtraLlave_esRechazado() {
         SeguridadConfig otra = new SeguridadConfig();
-        String tokenAjeno = new TokenService(otra.jwtEncoder(otra.llaveJwt(OTRO_SECRETO)), 60).generarToken(usuario());
+        String tokenAjeno = new TokenService(otra.jwtEncoder(otra.llaveJwt(OTRO_SECRETO))).generarToken(usuario(), sesion);
 
         assertThrows(JwtException.class, () -> decoder.decode(tokenAjeno));
     }
 
     @Test
     void tokenAlterado_esRechazado() {
-        String token = tokenService.generarToken(usuario());
+        String token = tokenService.generarToken(usuario(), sesion);
         String alterado = token.substring(0, token.length() - 2) + (token.endsWith("A") ? "BB" : "AA");
 
         assertThrows(JwtException.class, () -> decoder.decode(alterado));
@@ -80,19 +89,20 @@ class TokenServiceTest {
         ejecutivo.setCorreo("ejecutivo@banco.com");
         ejecutivo.setRol(Rol.EJECUTIVO);
 
-        Jwt jwt = decoder.decode(tokenService.generarToken(ejecutivo));
+        Jwt jwt = decoder.decode(tokenService.generarToken(ejecutivo, sesion));
 
         assertEquals("EJECUTIVO", jwt.getClaimAsString(TokenService.CLAIM_ROL));
         assertFalse(jwt.hasClaim(TokenService.CLAIM_CLIENTE_ID));
     }
 
     @Test
-    void convertidor_usuarioActivo_autenticaConElRolDeLaBaseDeDatos() {
+    void convertidor_sesionAbiertaYUsuarioActivo_autenticaConElRolDeLaBaseDeDatos() {
         UsuarioRepository repository = mock(UsuarioRepository.class);
         when(repository.buscarRolDeUsuarioActivo(20)).thenReturn(Optional.of(Rol.CLIENTE));
-        Jwt jwt = decoder.decode(tokenService.generarToken(usuario()));
+        Jwt jwt = decoder.decode(tokenService.generarToken(usuario(), sesion));
 
-        AbstractAuthenticationToken autenticacion = new UsuarioActivoJwtConverter(repository).convert(jwt);
+        AbstractAuthenticationToken autenticacion =
+                new UsuarioActivoJwtConverter(repository, sesiones(EstadoSesion.ABIERTA)).convert(jwt);
 
         assertTrue(autenticacion.isAuthenticated());
         assertEquals("maria.garcia@mail.com", autenticacion.getName());
@@ -104,18 +114,65 @@ class TokenServiceTest {
     void convertidor_usuarioDadoDeBajaConTokenVigente_esRechazado() {
         UsuarioRepository repository = mock(UsuarioRepository.class);
         when(repository.buscarRolDeUsuarioActivo(20)).thenReturn(Optional.empty());
-        Jwt jwt = decoder.decode(tokenService.generarToken(usuario()));
-        UsuarioActivoJwtConverter convertidor = new UsuarioActivoJwtConverter(repository);
+        Jwt jwt = decoder.decode(tokenService.generarToken(usuario(), sesion));
+        UsuarioActivoJwtConverter convertidor = new UsuarioActivoJwtConverter(repository, sesiones(EstadoSesion.ABIERTA));
 
         assertThrows(DisabledException.class, () -> convertidor.convert(jwt));
     }
 
     @Test
-    void convertidor_subNoNumerico_esTokenInvalidoYNoError500() {
-        Jwt jwt = Jwt.withTokenValue("t").header("alg", "HS256").subject("abc").build();
-        UsuarioActivoJwtConverter convertidor = new UsuarioActivoJwtConverter(mock(UsuarioRepository.class));
+    void convertidor_sesionReemplazadaPorOtroDispositivo_explicaElMotivo() {
+        Jwt jwt = decoder.decode(tokenService.generarToken(usuario(), sesion));
+        UsuarioActivoJwtConverter convertidor =
+                new UsuarioActivoJwtConverter(mock(UsuarioRepository.class), sesiones(EstadoSesion.REEMPLAZADA));
+
+        SesionCerradaException ex = assertThrows(SesionCerradaException.class, () -> convertidor.convert(jwt));
+        assertEquals(RespuestaErrorSeguridad.MENSAJE_SESION_REEMPLAZADA, ex.getMessage());
+    }
+
+    @Test
+    void convertidor_sesionCerradaPorLogout_esRechazada() {
+        Jwt jwt = decoder.decode(tokenService.generarToken(usuario(), sesion));
+        UsuarioActivoJwtConverter convertidor =
+                new UsuarioActivoJwtConverter(mock(UsuarioRepository.class), sesiones(EstadoSesion.INVALIDA));
+
+        SesionCerradaException ex = assertThrows(SesionCerradaException.class, () -> convertidor.convert(jwt));
+        assertEquals(RespuestaErrorSeguridad.MENSAJE_SESION_CERRADA, ex.getMessage());
+    }
+
+    @Test
+    void convertidor_tokenSinSesion_esTokenInvalido() {
+        Jwt jwt = Jwt.withTokenValue("t").header("alg", "HS256").subject("20").build();
+        UsuarioActivoJwtConverter convertidor =
+                new UsuarioActivoJwtConverter(mock(UsuarioRepository.class), sesiones(EstadoSesion.ABIERTA));
 
         assertThrows(BadCredentialsException.class, () -> convertidor.convert(jwt));
+    }
+
+    @Test
+    void convertidor_subNoNumerico_esTokenInvalidoYNoError500() {
+        Jwt jwt = Jwt.withTokenValue("t").header("alg", "HS256").subject("abc").build();
+        UsuarioActivoJwtConverter convertidor =
+                new UsuarioActivoJwtConverter(mock(UsuarioRepository.class), mock(SesionService.class));
+
+        assertThrows(BadCredentialsException.class, () -> convertidor.convert(jwt));
+    }
+
+    private static SesionService sesiones(EstadoSesion estado) {
+        SesionService sesionService = mock(SesionService.class);
+        when(sesionService.estado(any(), any())).thenReturn(estado);
+        return sesionService;
+    }
+
+    private static Sesion sesion() {
+        OffsetDateTime ahora = OffsetDateTime.now();
+        Sesion sesion = new Sesion();
+        sesion.setId(UUID.randomUUID());
+        sesion.setUsuarioId(20);
+        sesion.setPlataforma(Plataforma.MOVIL);
+        sesion.setFechaCreacion(ahora);
+        sesion.setFechaExpiracion(ahora.plusMinutes(60));
+        return sesion;
     }
 
     private static Usuario usuario() {

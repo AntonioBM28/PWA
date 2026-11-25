@@ -1,9 +1,11 @@
 package com.proyecto.servicios.model.onboarding;
 
 import com.proyecto.servicios.enums.EstadoCivil;
+import com.proyecto.servicios.enums.Ocupacion;
+import com.proyecto.servicios.enums.RangoIngresoMensual;
 import com.proyecto.servicios.enums.Sexo;
 
-import java.math.BigDecimal;
+
 import java.time.LocalDate;
 
 /** Request de registro valido que cada prueba modifica segun el caso. */
@@ -24,9 +26,9 @@ public final class ClienteRequestFixture {
         request.setCorreo("jose@mail.com");
         request.setTelefonoMovil("5512345678");
         request.setTelefonoAlternativo("5587654321");
-        request.setOcupacion("Ingeniero");
+        request.setOcupacion(Ocupacion.EMPLEADO_SECTOR_PRIVADO);
         request.setEmpresa("ACME");
-        request.setIngresoMensual(new BigDecimal("25000.00"));
+        request.setRangoIngresoMensual(RangoIngresoMensual.DE_20001_A_35000);
         request.setPassword("Segura#2026");
 
         DomicilioRequest domicilio = new DomicilioRequest();

@@ -18,7 +18,7 @@ import org.apache.commons.lang3.ObjectUtils;
 @NoArgsConstructor
 public class ActualizaDomicilioRequest {
 
-    @Size(max = 100, message = "La calle admite maximo 100 caracteres")
+    @Size(max = 60, message = "La calle admite maximo 60 caracteres")
     @Pattern(regexp = Patrones.NO_VACIO, message = "La calle no puede estar vacia")
     @Pattern(regexp = Patrones.TEXTO_SEGURO, message = "La calle " + Patrones.MENSAJE_TEXTO_SEGURO)
     private String calle;
