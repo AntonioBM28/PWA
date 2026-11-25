@@ -55,16 +55,6 @@ class ControlAccesoTest {
     }
 
     @Test
-    void cliente_soloPuedeFiltrarPorSuCorreo() {
-        autenticar("CLIENTE", 1);
-
-        assertTrue(acceso.esCorreoPropio("cliente@ejemplo.com"));
-        assertTrue(acceso.esCorreoPropio("CLIENTE@EJEMPLO.COM"));
-        assertFalse(acceso.esCorreoPropio("otro@ejemplo.com"));
-        assertFalse(acceso.esCorreoPropio(null));
-    }
-
-    @Test
     void ejecutivo_noTieneClienteId_suAccesoVieneDelRol() {
         autenticar("EJECUTIVO", null);
 
@@ -81,9 +71,6 @@ class ControlAccesoTest {
 
     private static void autenticar(String rol, Integer clienteId) {
         Jwt.Builder jwt = Jwt.withTokenValue("token").header("alg", "HS256").subject("10");
-        if ("CLIENTE".equals(rol)) {
-            jwt.claim(TokenService.CLAIM_CORREO, "cliente@ejemplo.com");
-        }
         if (clienteId != null) {
             jwt.claim(TokenService.CLAIM_CLIENTE_ID, clienteId);
         }

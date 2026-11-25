@@ -7,6 +7,7 @@ import com.proyecto.servicios.validation.Patrones;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -78,6 +79,7 @@ public class ClienteRequest {
     // ----- Datos de contacto -----
     @NotBlank(message = "El correo electronico es obligatorio")
     @Size(max = 100, message = Patrones.MENSAJE_LONGITUD_CORREO)
+    @Email(message = Patrones.MENSAJE_CORREO)
     @Pattern(regexp = Patrones.CORREO, message = Patrones.MENSAJE_CORREO)
     private String correo;
 
@@ -112,7 +114,6 @@ public class ClienteRequest {
     // ----- Acceso -----
     /** Las reglas de complejidad las valida PoliticaContrasena para dar un mensaje por cada regla. */
     @NotBlank(message = "La contrasena es obligatoria")
-    @Size(max = 72, message = "La contrasena admite maximo 72 caracteres")
     private String password;
 
     public void setCurp(String curp) {

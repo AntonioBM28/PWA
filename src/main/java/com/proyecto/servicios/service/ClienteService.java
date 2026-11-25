@@ -13,5 +13,7 @@ public interface ClienteService {
 
     ClientesResponse consultarClientes(ClienteFiltro filtro);
 
+    ClienteDetalleResponse consultarCliente(Integer id);
+
     ClienteDetalleResponse actualizarCliente(Integer id, ActualizaClienteRequest request);
 }

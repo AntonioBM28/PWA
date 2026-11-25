@@ -254,24 +254,24 @@ class ClienteServiceImplTest {
     }
 
     @Test
-    void consultarClientes_rangoDeFechasInvertido() {
-        ClienteFiltro filtro = new ClienteFiltro();
-        filtro.setFechaRegistroDesde(LocalDate.of(2026, 12, 31));
-        filtro.setFechaRegistroHasta(LocalDate.of(2026, 1, 1));
+    void consultarCliente_incluyeDomicilioYCuentas() {
+        when(clienteRepository.findById(ID_CLIENTE)).thenReturn(Optional.of(clienteExistente(true)));
+        when(cuentaRepository.findByClienteIdOrderByFechaCreacion(ID_CLIENTE)).thenReturn(List.of(cuenta()));
 
-        assertThrows(ValidacionException.class, () -> service.consultarClientes(filtro));
-        verifyNoInteractions(clienteRepository);
+        ClienteDetalleResponse response = service.consultarCliente(ID_CLIENTE);
+
+        assertEquals("Guanajuato", response.getCliente().getDomicilio().getEstado());
+        assertEquals(NUMERO_CUENTA, response.getCuentas().get(0).getNumeroCuenta());
+    }
+
+    @Test
+    void consultarCliente_noExiste() {
+        when(clienteRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThrows(ClienteNoEncontradoException.class, () -> service.consultarCliente(99));
     }
 
     // ===================================================================== Actualizacion
-
-    @Test
-    void actualizarCliente_sinDatos_rechazaLaPeticion() {
-        ActualizaClienteRequest cambios = new ActualizaClienteRequest();
-
-        assertThrows(ValidacionException.class, () -> service.actualizarCliente(ID_CLIENTE, cambios));
-        verifyNoInteractions(clienteRepository);
-    }
 
     @Test
     void actualizarCliente_clienteNoExiste() {

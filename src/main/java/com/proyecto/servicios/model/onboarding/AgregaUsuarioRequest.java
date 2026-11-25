@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +26,5 @@ public class AgregaUsuarioRequest {
 
     @Schema(example = "Segura#2026")
     @NotBlank(message = "La contrasena es obligatoria")
-    @Size(max = 72, message = "La contrasena admite maximo 72 caracteres")
     private String password;
 }

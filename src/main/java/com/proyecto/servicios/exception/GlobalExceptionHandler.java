@@ -15,17 +15,14 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -44,32 +41,6 @@ public class GlobalExceptionHandler {
     static final String MENSAJE_ACCESO_DENEGADO = "No tiene permiso para realizar esta operacion o acceder a estos datos";
 
     // ===================================================================== Negocio
-
-    @ExceptionHandler({ClienteNoEncontradoException.class, CuentaNoEncontradaException.class})
-    public ResponseEntity<GenericResponse> handleRecursoNoEncontrado(OnboardingException ex) {
-        return error(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler({ClienteYaRegistradoException.class, UsuarioYaRegistradoException.class,
-            ClienteInactivoException.class})
-    public ResponseEntity<GenericResponse> handleConflictoNegocio(OnboardingException ex) {
-        return error(ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(ValidacionException.class)
-    public ResponseEntity<GenericResponse> handleValidacionNegocio(ValidacionException ex) {
-        return error(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(CredencialesInvalidasException.class)
-    public ResponseEntity<GenericResponse> handleCredencialesInvalidas(CredencialesInvalidasException ex) {
-        return error(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler(UsuarioInactivoException.class)
-    public ResponseEntity<GenericResponse> handleUsuarioInactivo(UsuarioInactivoException ex) {
-        return error(ex.getMessage(), HttpStatus.FORBIDDEN);
-    }
 
     /** Reglas de negocio del onboarding; cada subclase define su estatus HTTP. */
     @ExceptionHandler(OnboardingException.class)
@@ -119,32 +90,23 @@ public class GlobalExceptionHandler {
     // ===================================================================== Validaciones de entrada
 
     /**
-     * Errores de Bean Validation en el cuerpo (@Valid @RequestBody) o en los filtros de consulta
-     * (@Valid @ParameterObject). Si un filtro no se pudo convertir (por ejemplo una fecha "ayer"), el
-     * mensaje de Spring menciona clases internas, por eso se reemplaza por uno propio.
+     * Errores de Bean Validation en el cuerpo (@Valid @RequestBody), incluidos los filtros de
+     * consulta. Si un campo no se pudo convertir, el mensaje de Spring menciona clases internas, por
+     * eso se reemplaza por uno propio.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<GenericResponse> handleValidacionCuerpo(MethodArgumentNotValidException ex) {
-        Map<String, List<String>> errores = new LinkedHashMap<>();
-        ex.getBindingResult().getFieldErrors().stream()
+        String mensaje = ex.getBindingResult().getFieldErrors().stream()
                 .sorted(Comparator.comparing(FieldError::getField))
-                .forEach(fieldError -> errores
-                        .computeIfAbsent(fieldError.getField(), campo -> new ArrayList<>())
-                        .add(fieldError.isBindingFailure()
-                                ? "Valor no valido para el campo " + fieldError.getField()
-                                : mensajeValidacion(fieldError)));
-
-        String mensaje = errores.entrySet().stream()
-                .map(entrada -> entrada.getKey() + ": " + String.join(", ", entrada.getValue()))
+                .map(error -> error.isBindingFailure()
+                        ? "Formato no valido para el campo " + error.getField()
+                        : error.getDefaultMessage())
+                .distinct()
                 .collect(Collectors.joining(SEPARADOR));
-        GenericResponse response = new GenericResponse();
-        response.setCodigo(CODIGO_ERROR);
-        response.setMensaje(mensaje);
-        response.setErrores(errores);
-        return ResponseEntity.badRequest().body(response);
+        return error(mensaje, HttpStatus.BAD_REQUEST);
     }
 
-    /** Errores de Bean Validation en parametros (@PathVariable, @RequestParam). */
+    /** Errores de Bean Validation en parametros del metodo que no son el cuerpo (por ejemplo headers). */
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<GenericResponse> handleValidacionParametros(HandlerMethodValidationException ex) {
         String mensaje = ex.getAllErrors().stream()
@@ -154,10 +116,16 @@ public class GlobalExceptionHandler {
         return error(mensaje, HttpStatus.BAD_REQUEST);
     }
 
-    /** Parametro de ruta o de consulta con un tipo invalido, por ejemplo /clientes/abc. */
+    /** Parametro con un tipo invalido que no viene en el cuerpo, por ejemplo un header numerico. */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<GenericResponse> handleTipoParametro(MethodArgumentTypeMismatchException ex) {
-        return error("Valor '" + ex.getValue() + "' no valido para el parametro " + ex.getName(), HttpStatus.BAD_REQUEST);
+        return error("Formato no valido para el parametro " + ex.getName(), HttpStatus.BAD_REQUEST);
+    }
+
+    /** Falta un header obligatorio, por ejemplo Idempotency-Key al crear una transaccion. */
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<GenericResponse> handleHeaderFaltante(MissingRequestHeaderException ex) {
+        return error("Falta el header obligatorio " + ex.getHeaderName(), HttpStatus.BAD_REQUEST);
     }
 
     /** JSON mal formado o con valores que no corresponden al tipo (fechas, enums, numeros). */
@@ -170,7 +138,7 @@ public class GlobalExceptionHandler {
         }
         String mensaje = "El cuerpo de la peticion no es un JSON valido";
         if (ex.getCause() instanceof InvalidFormatException formato) {
-            mensaje = "Valor '" + formato.getValue() + "' no valido para el campo " + campo(formato);
+            mensaje = "Formato no valido para el campo " + campo(formato);
             if (formato.getTargetType().isEnum()) {
                 mensaje += ". Valores permitidos: " + Arrays.toString(formato.getTargetType().getEnumConstants());
             }
@@ -218,12 +186,6 @@ public class GlobalExceptionHandler {
         return ex.getPath().stream()
                 .map(referencia -> referencia.getFieldName() != null ? referencia.getFieldName() : "[" + referencia.getIndex() + "]")
                 .collect(Collectors.joining("."));
-    }
-
-    private static String mensajeValidacion(FieldError fieldError) {
-        return fieldError.getDefaultMessage() != null
-                ? fieldError.getDefaultMessage()
-                : "El valor del campo no es valido";
     }
 
     private static ResponseEntity<GenericResponse> error(String mensaje, HttpStatus status) {

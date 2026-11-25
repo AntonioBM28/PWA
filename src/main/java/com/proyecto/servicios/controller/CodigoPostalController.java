@@ -1,7 +1,7 @@
 package com.proyecto.servicios.controller;
 
+import com.proyecto.servicios.model.CodigoPostalRequest;
 import com.proyecto.servicios.model.CodigoPostalResponse;
-import com.proyecto.servicios.model.ConsultaCodigoPostalRequest;
 import com.proyecto.servicios.service.CodigoPostalService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ public class CodigoPostalController {
     @SecurityRequirements
     @PostMapping(value = "/codigos-postales/consulta", produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CodigoPostalResponse> consultarCodigoPostal(@Valid @RequestBody ConsultaCodigoPostalRequest request) {
+    public ResponseEntity<CodigoPostalResponse> consultarCodigoPostal(@Valid @RequestBody CodigoPostalRequest request) {
         return new ResponseEntity<>(codigoPostalService.consultarCodigoPostal(request.getCodigoPostal()), HttpStatus.OK);
     }
 }

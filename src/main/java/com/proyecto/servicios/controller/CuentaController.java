@@ -4,8 +4,8 @@ import com.proyecto.servicios.model.onboarding.ActualizaCuentaRequest;
 import com.proyecto.servicios.model.onboarding.CrearCuentaRequest;
 import com.proyecto.servicios.model.onboarding.CuentaDetalleResponse;
 import com.proyecto.servicios.model.onboarding.CuentaFiltro;
-import com.proyecto.servicios.model.onboarding.CuentaNumeroRequest;
 import com.proyecto.servicios.model.onboarding.CuentasResponse;
+import com.proyecto.servicios.model.onboarding.NumeroCuentaRequest;
 import com.proyecto.servicios.model.onboarding.SaldoResponse;
 import com.proyecto.servicios.security.Permisos;
 import com.proyecto.servicios.service.CuentaService;
@@ -20,6 +20,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Cuentas. El numero de cuenta y los criterios de busqueda se reciben en el cuerpo JSON
+ * (Request DTO) y se validan con @Valid.
+ */
 @RestController
 public class CuentaController {
 
@@ -29,19 +33,30 @@ public class CuentaController {
         this.cuentaService = cuentaService;
     }
 
-    @Operation(summary = "Consultar el saldo de una cuenta",
-            description = "Recibe numeroCuenta en el cuerpo. Un CLIENTE solo puede consultar el saldo de sus propias cuentas")
+    @Operation(summary = "Consultar el detalle de una cuenta",
+            description = "Un CLIENTE solo puede consultar sus propias cuentas")
     @PreAuthorize(Permisos.EJECUTIVO_O_DUENO_DE_LA_CUENTA)
-    @PostMapping(value = "/cuentas/saldo", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SaldoResponse> consultarSaldo(@Valid @RequestBody CuentaNumeroRequest request) {
+    @PostMapping(value = "/cuentas/detalle", produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CuentaDetalleResponse> consultarCuenta(@Valid @RequestBody NumeroCuentaRequest request) {
+        return new ResponseEntity<>(cuentaService.consultarCuenta(request.getNumeroCuenta()), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Consultar el saldo de una cuenta",
+            description = "Un CLIENTE solo puede consultar el saldo de sus propias cuentas")
+    @PreAuthorize(Permisos.EJECUTIVO_O_DUENO_DE_LA_CUENTA)
+    @PostMapping(value = "/cuentas/saldo", produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SaldoResponse> consultarSaldo(@Valid @RequestBody NumeroCuentaRequest request) {
         return new ResponseEntity<>(cuentaService.consultarSaldo(request.getNumeroCuenta()), HttpStatus.OK);
     }
 
     @Operation(summary = "Consultar cuentas",
-            description = "Combina numeroCuenta, correoCliente y estatus; sin filtros devuelve todas (paginadas). "
-                    + "Un CLIENTE debe enviar su propio correo")
+            description = "Un solo endpoint de busqueda: filtra por cliente (clienteId) y/o por estatus; sin filtros "
+                    + "devuelve todas (paginadas). Un CLIENTE debe enviar su propio clienteId")
     @PreAuthorize(Permisos.EJECUTIVO_O_CLIENTE_DEL_FILTRO)
-    @PostMapping(value = "/cuentas/busqueda", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/cuentas/consulta", produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CuentasResponse> consultarCuentas(@Valid @RequestBody CuentaFiltro filtro) {
         return new ResponseEntity<>(cuentaService.consultarCuentas(filtro), HttpStatus.OK);
     }
@@ -56,7 +71,8 @@ public class CuentaController {
     }
 
     @Operation(summary = "Actualizar parcialmente una cuenta (EJECUTIVO)",
-            description = "Recibe numeroCuenta en el cuerpo y solo modifica el estatus. Una cuenta solo puede quedar ACTIVA si su cliente esta activo")
+            description = "numeroCuenta indica la cuenta y solo se modifica el estatus. Una cuenta solo puede quedar "
+                    + "ACTIVA si su cliente esta activo")
     @PreAuthorize(Permisos.EJECUTIVO)
     @PatchMapping(value = "/cuentas", produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
