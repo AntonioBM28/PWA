@@ -82,19 +82,34 @@ Completa los valores entre comillas con los datos de tu entorno. Para Render, co
 - Swagger UI desplegado: [https://pwa-n2mh.onrender.com/swagger-ui/index.html](https://pwa-n2mh.onrender.com/swagger-ui/index.html)
 - OpenAPI JSON: [https://pwa-n2mh.onrender.com/v3/api-docs](https://pwa-n2mh.onrender.com/v3/api-docs)
 
-Para endpoints protegidos, llama `POST /auth/login` con `{ "correo": "...", "password": "..." }`. Copia el campo `token` de la respuesta y usa **Authorize** en Swagger; pega el JWT (Swagger añade el esquema Bearer). El rol `EJECUTIVO` administra clientes/cuentas/usuarios. El rol `CLIENTE` puede consultar y actualizar sus propios datos y cuentas, sujeto a las reglas del endpoint.
+### Inicio de sesión con doble factor y sesión única
 
-### Acceso ejecutivo para Swagger
+El inicio de sesión tiene dos pasos y aplica a los dos roles (`EJECUTIVO` y `CLIENTE`):
 
-No existe un endpoint para crear usuarios con rol `EJECUTIVO`. El usuario inicial se crea desde la configuración de la aplicación. Define `ONBOARDING_EJECUTIVO_CORREO` y `ONBOARDING_EJECUTIVO_PASSWORD` en el entorno antes de iniciar sesión; no publiques credenciales en el repositorio.
+1. `POST /auth/login` con `{ "correo", "password", "plataforma": "MOVIL" | "WEB", "dispositivo" }`. Si la contraseña es correcta, envía un código de 6 dígitos al correo del usuario (Gmail SMTP, `spring.mail.*`) y responde `202` con un `desafioId`.
+2. `POST /auth/verificar-codigo` con `{ "desafioId", "codigo" }`. Abre la sesión:
+   - `MOVIL` (por defecto, también Swagger): el JWT viene en `token`; se envía como `Authorization: Bearer`.
+   - `WEB`: el JWT viaja en la cookie `SESION` (`HttpOnly; Secure; SameSite=Strict`) y no aparece en el cuerpo. Las peticiones que modifican datos deben repetir la cookie `XSRF-TOKEN` en el header `X-XSRF-TOKEN` (CSRF).
 
-En Swagger, abre `POST /auth/login`, envía las credenciales del entorno y copia el valor de `token` de la respuesta. Después pulsa **Authorize**, pega el token y autoriza. Si la cuenta ejecutiva ya existía en la base de datos, el inicializador no cambia su contraseña.
+Reglas del código (`onboarding.verificacion.*`): se guarda solo su hash BCrypt, vence en 5 minutos, es de un solo uso (`410` si se reutiliza), admite 5 intentos (`429` al agotarlos), se puede reenviar con `POST /auth/reenviar-codigo` cada 60 segundos y hasta 3 veces. Además, el limitador por IP cubre login, verificación y reenvío.
+
+**Sesión única respaldada por el servidor:** cada JWT lleva el id de una fila de `onboarding.sesiones` (claim `jti`) y cada petición valida que esa sesión siga abierta. Si el usuario ya tiene una sesión en otro dispositivo, `POST /auth/login` responde `409` con `sesionActiva` (plataforma y hora); al repetirlo con `"cerrarSesionAnterior": true` y verificar el código, la sesión anterior se cierra y su token responde `401` de inmediato. `POST /auth/logout` cierra la sesión en el servidor y `GET /auth/sesion` devuelve la sesión actual (la app web lo usa al recargar).
+
+En Swagger: `POST /auth/login`, revisa el correo, `POST /auth/verificar-codigo` y copia `token` en **Authorize**. El rol `EJECUTIVO` administra clientes/cuentas/usuarios; el rol `CLIENTE` consulta y actualiza sus propios datos y cuentas.
+
+### Ejecutivo inicial
+
+No existe un endpoint para crear usuarios con rol `EJECUTIVO`. El usuario inicial se crea al arrancar con `onboarding.ejecutivo.correo` y `onboarding.ejecutivo.password` si ese correo no existe; si ya existía, el inicializador no cambia su contraseña.
 
 ## Endpoints principales
 
 | Método  | Ruta                               | Acceso / función                                                                                                 |
 | ------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `POST`  | `/auth/login`                      | Público; inicia sesión y devuelve JWT.                                                                           |
+| `POST`  | `/auth/login`                      | Público; valida la contraseña y envía el código por correo (`202`). `409` si hay sesión en otro dispositivo.   |
+| `POST`  | `/auth/verificar-codigo`           | Público; valida el código y abre la sesión (token en el cuerpo o cookie `SESION`).                              |
+| `POST`  | `/auth/reenviar-codigo`            | Público; envía un código nuevo para el mismo desafío.                                                            |
+| `GET`   | `/auth/sesion`                     | Sesión actual (usuario, rol, vigencia).                                                                          |
+| `POST`  | `/auth/logout`                     | Cierra la sesión en el servidor.                                                                                 |
 | `POST`  | `/clientes`                        | Público; registra cliente, domicilio, cuenta y usuario.                                                          |
 | `POST`  | `/clientes/consulta`               | Ejecutivo; lista paginada y filtra por nombre, apellidos, CURP, RFC, correo, número de cuenta, estatus y fechas. |
 | `POST`  | `/clientes/detalle`                | Ejecutivo o el propio cliente; cuerpo `{ "id": 1 }`.                                                             |

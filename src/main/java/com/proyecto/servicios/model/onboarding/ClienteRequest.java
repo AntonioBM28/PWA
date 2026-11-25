@@ -1,12 +1,12 @@
 package com.proyecto.servicios.model.onboarding;
 
 import com.proyecto.servicios.enums.EstadoCivil;
+import com.proyecto.servicios.enums.Ocupacion;
+import com.proyecto.servicios.enums.RangoIngresoMensual;
 import com.proyecto.servicios.enums.Sexo;
 import com.proyecto.servicios.validation.MayorDeEdad;
 import com.proyecto.servicios.validation.Patrones;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -95,26 +94,26 @@ public class ClienteRequest {
     @Valid
     private DomicilioRequest domicilio;
 
-    // ----- Informacion laboral -----
-    @NotBlank(message = "La ocupacion es obligatoria")
-    @Size(max = 60, message = "La ocupacion admite maximo 60 caracteres")
-    @Pattern(regexp = Patrones.TEXTO_SEGURO, message = "La ocupacion " + Patrones.MENSAJE_TEXTO_SEGURO)
-    private String ocupacion;
+    // ----- Informacion laboral (opcional) -----
+    /** Se elige del catalogo de ocupaciones. */
+    private Ocupacion ocupacion;
 
-    @NotBlank(message = "La empresa es obligatoria")
     @Size(max = 100, message = "La empresa admite maximo 100 caracteres")
     @Pattern(regexp = Patrones.TEXTO_SEGURO, message = "La empresa " + Patrones.MENSAJE_TEXTO_SEGURO)
     private String empresa;
 
-    @NotNull(message = "El ingreso mensual es obligatorio")
-    @DecimalMin(value = "0", inclusive = false, message = "El ingreso mensual debe ser mayor a cero")
-    @Digits(integer = 10, fraction = 2, message = "El ingreso mensual admite hasta 10 enteros y 2 decimales")
-    private BigDecimal ingresoMensual;
+    /** Se elige del tabulador de ingresos; no se captura un monto libre. */
+    private RangoIngresoMensual rangoIngresoMensual;
 
     // ----- Acceso -----
     /** Las reglas de complejidad las valida PoliticaContrasena para dar un mensaje por cada regla. */
     @NotBlank(message = "La contrasena es obligatoria")
     private String password;
+
+    /** La empresa es opcional: un valor vacio se guarda como nulo. */
+    public void setEmpresa(String empresa) {
+        this.empresa = StringUtils.trimToNull(empresa);
+    }
 
     public void setCurp(String curp) {
         this.curp = StringUtils.upperCase(StringUtils.trim(curp));

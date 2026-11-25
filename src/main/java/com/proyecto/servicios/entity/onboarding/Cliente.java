@@ -1,6 +1,8 @@
 package com.proyecto.servicios.entity.onboarding;
 
 import com.proyecto.servicios.enums.EstadoCivil;
+import com.proyecto.servicios.enums.Ocupacion;
+import com.proyecto.servicios.enums.RangoIngresoMensual;
 import com.proyecto.servicios.enums.Sexo;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,7 +10,6 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
@@ -68,14 +69,16 @@ public class Cliente {
     @Column(name = "telefono_alternativo", length = 10)
     private String telefonoAlternativo;
 
-    @Column(name = "ocupacion", nullable = false, length = 60)
-    private String ocupacion;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ocupacion", length = 60)
+    private Ocupacion ocupacion;
 
-    @Column(name = "empresa", nullable = false, length = 100)
+    @Column(name = "empresa", length = 100)
     private String empresa;
 
-    @Column(name = "ingreso_mensual", nullable = false, precision = 12, scale = 2)
-    private BigDecimal ingresoMensual;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rango_ingreso_mensual", length = 20)
+    private RangoIngresoMensual rangoIngresoMensual;
 
     @Column(name = "activo", nullable = false)
     private Boolean activo = true;

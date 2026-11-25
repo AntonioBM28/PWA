@@ -1,6 +1,8 @@
 package com.proyecto.servicios.model.onboarding;
 
 import com.proyecto.servicios.enums.EstadoCivil;
+import com.proyecto.servicios.enums.Ocupacion;
+import com.proyecto.servicios.enums.RangoIngresoMensual;
 import com.proyecto.servicios.enums.Sexo;
 import com.proyecto.servicios.validation.MayorDeEdad;
 import com.proyecto.servicios.validation.Patrones;
@@ -8,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
@@ -23,7 +23,6 @@ import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -92,20 +91,16 @@ public class ActualizaClienteRequest {
     @Valid
     private ActualizaDomicilioRequest domicilio;
 
-    // ----- Informacion laboral -----
-    @Size(max = 60, message = "La ocupacion admite maximo 60 caracteres")
-    @Pattern(regexp = Patrones.NO_VACIO, message = "La ocupacion no puede estar vacia")
-    @Pattern(regexp = Patrones.TEXTO_SEGURO, message = "La ocupacion " + Patrones.MENSAJE_TEXTO_SEGURO)
+    // ----- Informacion laboral (opcional: un valor vacio elimina el dato) -----
+    @Schema(description = "Clave del catalogo de ocupaciones, o vacio para eliminarla", example = "DOCENTE")
     private String ocupacion;
 
     @Size(max = 100, message = "La empresa admite maximo 100 caracteres")
-    @Pattern(regexp = Patrones.NO_VACIO, message = "La empresa no puede estar vacia")
     @Pattern(regexp = Patrones.TEXTO_SEGURO, message = "La empresa " + Patrones.MENSAJE_TEXTO_SEGURO)
     private String empresa;
 
-    @DecimalMin(value = "0", inclusive = false, message = "El ingreso mensual debe ser mayor a cero")
-    @Digits(integer = 10, fraction = 2, message = "El ingreso mensual admite hasta 10 enteros y 2 decimales")
-    private BigDecimal ingresoMensual;
+    @Schema(description = "Clave del tabulador de ingresos, o vacio para eliminarlo", example = "DE_10001_A_20000")
+    private String rangoIngresoMensual;
 
     // ----- Estatus -----
     @Schema(description = "false: baja logica (cuentas y usuario quedan inactivos); true: reactiva al cliente y a su usuario")
@@ -132,11 +127,23 @@ public class ActualizaClienteRequest {
         this.correo = StringUtils.lowerCase(StringUtils.trim(correo));
     }
 
+    @JsonIgnore
+    @AssertTrue(message = "La ocupacion no existe en el catalogo")
+    public boolean isOcupacionValida() {
+        return StringUtils.isEmpty(ocupacion) || Ocupacion.existe(ocupacion);
+    }
+
+    @JsonIgnore
+    @AssertTrue(message = "El rango de ingreso mensual no existe en el tabulador")
+    public boolean isRangoIngresoMensualValido() {
+        return StringUtils.isEmpty(rangoIngresoMensual) || RangoIngresoMensual.existe(rangoIngresoMensual);
+    }
+
     /** true si la peticion no trae ningun dato para actualizar. */
     public boolean sinCambios() {
         return ObjectUtils.allNull(nombre, segundoNombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, sexo,
                 nacionalidad, estadoCivil, correo, telefonoMovil, telefonoAlternativo, ocupacion, empresa,
-                ingresoMensual, activo)
+                rangoIngresoMensual, activo)
                 && (domicilio == null || domicilio.sinCambios());
     }
 
