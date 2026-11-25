@@ -3,6 +3,7 @@ package com.proyecto.servicios.exception;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.proyecto.servicios.model.GenericResponse;
+import com.proyecto.servicios.model.onboarding.SesionActivaResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.MessageSourceResolvable;
@@ -46,6 +47,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(OnboardingException.class)
     public ResponseEntity<GenericResponse> handleOnboarding(OnboardingException ex) {
         return error(ex.getMessage(), ex.getHttpStatus());
+    }
+
+    /**
+     * 409 al iniciar sesion: el usuario tiene una sesion abierta en otro dispositivo. Incluye desde
+     * donde y desde cuando, para que la app pregunte si se debe cerrar.
+     */
+    @ExceptionHandler(SesionActivaException.class)
+    public ResponseEntity<SesionActivaResponse> handleSesionActiva(SesionActivaException ex) {
+        SesionActivaResponse.SesionActiva sesion = new SesionActivaResponse.SesionActiva();
+        sesion.setPlataforma(ex.getPlataforma());
+        sesion.setIniciadaEn(ex.getIniciadaEn());
+        SesionActivaResponse response = new SesionActivaResponse();
+        response.setCodigo(CODIGO_ERROR);
+        response.setMensaje(ex.getMessage());
+        response.setSesionActiva(sesion);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     /** 429 con el header Retry-After, para que el cliente sepa cuanto esperar. */

@@ -1,7 +1,7 @@
 package com.proyecto.servicios.security;
 
+import com.proyecto.servicios.entity.onboarding.Sesion;
 import com.proyecto.servicios.entity.onboarding.Usuario;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -9,13 +9,12 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
-
 /**
- * Genera el JWT de un usuario autenticado. El token lleva el id del usuario (sub), su correo, su
- * rol y, si es CLIENTE, el id de su cliente; nunca la contrasena. Los permisos no se toman del rol
- * del token sino de la base de datos (UsuarioActivoJwtConverter).
+ * Genera el JWT de un usuario autenticado. El token lleva el id del usuario (sub), el id de su
+ * sesion (jti), su correo, su rol y, si es CLIENTE, el id de su cliente; nunca la contrasena.
+ * <p>
+ * El token vence junto con su sesion. Cada peticion revisa en la base de datos que la sesion siga
+ * abierta (UsuarioActivoJwtConverter), asi el servidor puede invalidar un token antes de que expire.
  */
 @Service
 public class TokenService {
@@ -26,20 +25,18 @@ public class TokenService {
     static final String EMISOR = "servicios-onboarding";
 
     private final JwtEncoder jwtEncoder;
-    private final Duration vigencia;
 
-    public TokenService(JwtEncoder jwtEncoder, @Value("${onboarding.jwt.expiracion-minutos}") long expiracionMinutos) {
+    public TokenService(JwtEncoder jwtEncoder) {
         this.jwtEncoder = jwtEncoder;
-        this.vigencia = Duration.ofMinutes(expiracionMinutos);
     }
 
-    public String generarToken(Usuario usuario) {
-        Instant ahora = Instant.now();
+    public String generarToken(Usuario usuario, Sesion sesion) {
         JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
+                .id(sesion.getId().toString())
                 .issuer(EMISOR)
                 .subject(String.valueOf(usuario.getId()))
-                .issuedAt(ahora)
-                .expiresAt(ahora.plus(vigencia))
+                .issuedAt(sesion.getFechaCreacion().toInstant())
+                .expiresAt(sesion.getFechaExpiracion().toInstant())
                 .claim(CLAIM_CORREO, usuario.getCorreo())
                 .claim(CLAIM_ROL, usuario.getRol().name());
         // Un EJECUTIVO no es cliente, por eso no lleva clienteId
@@ -48,9 +45,5 @@ public class TokenService {
         }
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue();
-    }
-
-    public long getVigenciaSegundos() {
-        return vigencia.toSeconds();
     }
 }

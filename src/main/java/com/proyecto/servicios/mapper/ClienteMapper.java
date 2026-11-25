@@ -2,6 +2,8 @@ package com.proyecto.servicios.mapper;
 
 import com.proyecto.servicios.entity.onboarding.Cliente;
 import com.proyecto.servicios.entity.onboarding.Domicilio;
+import com.proyecto.servicios.enums.Ocupacion;
+import com.proyecto.servicios.enums.RangoIngresoMensual;
 import com.proyecto.servicios.model.onboarding.ActualizaClienteRequest;
 import com.proyecto.servicios.model.onboarding.ActualizaDomicilioRequest;
 import com.proyecto.servicios.model.onboarding.ClienteRequest;
@@ -54,6 +56,9 @@ public interface ClienteMapper {
     @Mapping(target = "fechaActualizacion", ignore = true)
     @Mapping(target = "segundoNombre", qualifiedByName = VACIO_A_NULO)
     @Mapping(target = "telefonoAlternativo", qualifiedByName = VACIO_A_NULO)
+    @Mapping(target = "empresa", qualifiedByName = VACIO_A_NULO)
+    @Mapping(target = "ocupacion", qualifiedByName = "aOcupacion")
+    @Mapping(target = "rangoIngresoMensual", qualifiedByName = "aRangoIngreso")
     void actualizar(ActualizaClienteRequest request, @MappingTarget Cliente cliente);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -77,5 +82,17 @@ public interface ClienteMapper {
     @Named(VACIO_A_NULO)
     default String vacioANulo(String valor) {
         return StringUtils.trimToNull(valor);
+    }
+
+    /** Clave del catalogo; vacia elimina la ocupacion (ya validada en el request). */
+    @Named("aOcupacion")
+    default Ocupacion aOcupacion(String valor) {
+        return StringUtils.isBlank(valor) ? null : Ocupacion.valueOf(valor.trim());
+    }
+
+    /** Clave del tabulador; vacia elimina el rango (ya validada en el request). */
+    @Named("aRangoIngreso")
+    default RangoIngresoMensual aRangoIngreso(String valor) {
+        return StringUtils.isBlank(valor) ? null : RangoIngresoMensual.valueOf(valor.trim());
     }
 }

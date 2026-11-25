@@ -11,7 +11,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ClienteRequestValidationTest {
@@ -59,7 +59,6 @@ class ClienteRequestValidationTest {
     void textoLibreConPuntuacionComun_esValido() {
         ClienteRequest request = ClienteRequestFixture.requestValido();
         request.setEmpresa("AT&T Comunicaciones, S.A. de C.V. (Mexico)");
-        request.setOcupacion("Ingeniera de software - Lider tecnica");
         request.getDomicilio().setCalle("Av. 16 de Septiembre #120");
         request.getDomicilio().setNumeroExterior("12-B");
         request.getDomicilio().setNumeroInterior("Depto. 4");
@@ -75,6 +74,17 @@ class ClienteRequestValidationTest {
         request.setTelefonoAlternativo(null);
         request.getDomicilio().setNumeroInterior(null);
 
+        assertTrue(validator.validate(request).isEmpty());
+    }
+
+    @Test
+    void informacionLaboral_esOpcional_yLaEmpresaVaciaSeGuardaComoNula() {
+        ClienteRequest request = ClienteRequestFixture.requestValido();
+        request.setOcupacion(null);
+        request.setRangoIngresoMensual(null);
+        request.setEmpresa("   ");
+
+        assertNull(request.getEmpresa());
         assertTrue(validator.validate(request).isEmpty());
     }
 
@@ -99,8 +109,6 @@ class ClienteRequestValidationTest {
                 caso("nombre de 51 caracteres", r -> r.setNombre("A".repeat(51)), "El nombre debe tener entre 2 y 50 caracteres"),
                 caso("empresa con <script>", r -> r.setEmpresa("<script>alert(1)</script>"),
                         "La empresa contiene caracteres no permitidos (solo letras, numeros, espacios y . , # / & ( ) ' ° -)"),
-                caso("ocupacion con HTML", r -> r.setOcupacion("<img src=x onerror=alert(1)>"),
-                        "La ocupacion contiene caracteres no permitidos (solo letras, numeros, espacios y . , # / & ( ) ' ° -)"),
                 caso("calle con comillas dobles", r -> r.getDomicilio().setCalle("Hidalgo\" onmouseover=\"x"),
                         "La calle contiene caracteres no permitidos (solo letras, numeros, espacios y . , # / & ( ) ' ° -)"),
                 // Antes provocaba StackOverflowError en el motor de regex (error 500)
@@ -133,10 +141,7 @@ class ClienteRequestValidationTest {
                 caso("codigo postal de 4 digitos", r -> r.getDomicilio().setCodigoPostal("3780"), "El codigo postal debe contener exactamente 5 digitos"),
                 caso("calle obligatoria", r -> r.getDomicilio().setCalle(""), "La calle es obligatoria"),
                 caso("colonia obligatoria", r -> r.getDomicilio().setColonia(null), "La colonia es obligatoria"),
-                caso("ocupacion obligatoria", r -> r.setOcupacion(null), "La ocupacion es obligatoria"),
-                caso("ingreso igual a cero", r -> r.setIngresoMensual(BigDecimal.ZERO), "El ingreso mensual debe ser mayor a cero"),
-                caso("ingreso negativo", r -> r.setIngresoMensual(new BigDecimal("-1")), "El ingreso mensual debe ser mayor a cero"),
-                caso("ingreso con 3 decimales", r -> r.setIngresoMensual(new BigDecimal("100.123")), "El ingreso mensual admite hasta 10 enteros y 2 decimales"),
+                caso("calle de 61 caracteres", r -> r.getDomicilio().setCalle("A".repeat(61)), "La calle admite maximo 60 caracteres"),
                 caso("contrasena obligatoria", r -> r.setPassword(null), "La contrasena es obligatoria"));
     }
 

@@ -31,7 +31,7 @@ import java.time.Duration;
 @Slf4j
 public class LimitePeticionesFilter extends OncePerRequestFilter {
 
-    static final String RUTA_LOGIN = "/auth/login";
+    static final String RUTA_LOGIN = RutasPublicas.LOGIN;
     static final String RUTA_REGISTRO = "/clientes";
     private static final Duration MINUTO = Duration.ofMinutes(1);
 
@@ -79,7 +79,8 @@ public class LimitePeticionesFilter extends OncePerRequestFilter {
             return null;
         }
         return switch (request.getServletPath()) {
-            case RUTA_LOGIN -> login;
+            // El codigo de verificacion comparte el limite del login: probar codigos es fuerza bruta
+            case RUTA_LOGIN, RutasPublicas.VERIFICAR_CODIGO, RutasPublicas.REENVIAR_CODIGO -> login;
             case RUTA_REGISTRO -> registro;
             default -> null;
         };

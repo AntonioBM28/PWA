@@ -5,6 +5,7 @@ import com.proyecto.servicios.entity.onboarding.Cuenta;
 import com.proyecto.servicios.entity.onboarding.Domicilio;
 import com.proyecto.servicios.entity.onboarding.Usuario;
 import com.proyecto.servicios.enums.EstatusCuenta;
+import com.proyecto.servicios.enums.RangoIngresoMensual;
 import com.proyecto.servicios.exception.ClienteNoEncontradoException;
 import com.proyecto.servicios.exception.CodigoPostalException;
 import com.proyecto.servicios.exception.ContrasenaInvalidaException;
@@ -276,7 +277,7 @@ class ClienteServiceImplTest {
     @Test
     void actualizarCliente_clienteNoExiste() {
         ActualizaClienteRequest cambios = new ActualizaClienteRequest();
-        cambios.setOcupacion("Arquitecto");
+        cambios.setOcupacion("DOCENTE");
         when(clienteRepository.findById(99)).thenReturn(Optional.empty());
 
         assertThrows(ClienteNoEncontradoException.class, () -> service.actualizarCliente(99, cambios));
@@ -288,7 +289,8 @@ class ClienteServiceImplTest {
         ActualizaClienteRequest cambios = new ActualizaClienteRequest();
         cambios.setTelefonoMovil("3311112222");
         cambios.setSegundoNombre("");
-        cambios.setIngresoMensual(new BigDecimal("40000.00"));
+        cambios.setRangoIngresoMensual("DE_35001_A_50000");
+        cambios.setOcupacion("");
         ActualizaDomicilioRequest domicilio = new ActualizaDomicilioRequest();
         domicilio.setCalle("Juarez");
         cambios.setDomicilio(domicilio);
@@ -298,7 +300,8 @@ class ClienteServiceImplTest {
         Cliente guardado = clienteGuardado();
         assertEquals("3311112222", guardado.getTelefonoMovil());
         assertNull(guardado.getSegundoNombre());
-        assertEquals(new BigDecimal("40000.00"), guardado.getIngresoMensual());
+        assertEquals(RangoIngresoMensual.DE_35001_A_50000, guardado.getRangoIngresoMensual());
+        assertNull(guardado.getOcupacion());
         assertEquals("Juarez", guardado.getDomicilio().getCalle());
         // Lo que no se envio no cambia
         assertEquals("Jose", guardado.getNombre());
