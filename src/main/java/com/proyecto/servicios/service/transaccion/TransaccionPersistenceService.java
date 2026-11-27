@@ -27,10 +27,24 @@ public class TransaccionPersistenceService {
         this.transaccionRepository = transaccionRepository;
     }
 
+    /** Producto comprado, para el historial de operaciones. */
+    public record DatosOperacion(Integer idProducto, Integer idServicio, String producto, String servicio,
+                                 String referencia) {
+        static final DatosOperacion VACIO = new DatosOperacion(null, null, null, null, null);
+    }
+
     @Transactional
     public Reserva reservar(String numeroCuenta, Integer clienteAutenticado, boolean ejecutivo,
                             String clave, String huella, String upc, String random, String signed,
                             BigDecimal monto) {
+        return reservar(numeroCuenta, clienteAutenticado, ejecutivo, clave, huella, upc, random, signed, monto,
+                DatosOperacion.VACIO);
+    }
+
+    @Transactional
+    public Reserva reservar(String numeroCuenta, Integer clienteAutenticado, boolean ejecutivo,
+                            String clave, String huella, String upc, String random, String signed,
+                            BigDecimal monto, DatosOperacion datos) {
         Cuenta cuenta = cuentaRepository.bloquearPorNumeroCuenta(numeroCuenta)
                 .orElseThrow(() -> new TransaccionException("La cuenta no existe", HttpStatus.NOT_FOUND));
         Integer clienteId = cuenta.getCliente().getId();
@@ -68,8 +82,78 @@ public class TransaccionPersistenceService {
         tx.setPayloadCifrado(signed);
         tx.setMonto(monto);
         tx.setEstado(EstadoTransaccion.PENDIENTE);
+        tx.setIdProducto(datos.idProducto());
+        tx.setIdServicio(datos.idServicio());
+        tx.setProducto(limitar(datos.producto(), 200));
+        tx.setServicio(limitar(datos.servicio(), 150));
+        tx.setReferencia(datos.referencia());
         transaccionRepository.saveAndFlush(tx);
         return new Reserva(tx, false);
+    }
+
+    /**
+     * Registra una operacion RECHAZADA que nunca se envio a GestoPago (el servicio no esta disponible
+     * o no esta configurado). Aplica las mismas validaciones que una compra, pero NO descuenta saldo:
+     * queda en el historial y sirve para el ticket.
+     */
+    @Transactional
+    public Reserva registrarRechazo(String numeroCuenta, Integer clienteAutenticado, boolean ejecutivo,
+                                    String clave, String huella, String upc, BigDecimal monto,
+                                    DatosOperacion datos, String codigo, String motivo) {
+        Cuenta cuenta = cuentaRepository.bloquearPorNumeroCuenta(numeroCuenta)
+                .orElseThrow(() -> new TransaccionException("La cuenta no existe", HttpStatus.NOT_FOUND));
+        Integer clienteId = cuenta.getCliente().getId();
+        if (!ejecutivo && (clienteAutenticado == null || !clienteAutenticado.equals(clienteId))) {
+            throw new TransaccionException("No tiene autorización para operar esta cuenta", HttpStatus.FORBIDDEN);
+        }
+        var existente = transaccionRepository.findByClienteIdAndClaveIdempotencia(clienteId, clave);
+        if (existente.isPresent()) {
+            if (!existente.get().getHuellaSolicitud().equals(huella)) {
+                throw new TransaccionException("La clave de idempotencia ya se usó con otros datos", HttpStatus.CONFLICT);
+            }
+            return new Reserva(existente.get(), true);
+        }
+        if (!Boolean.TRUE.equals(cuenta.getCliente().getActivo())) {
+            throw new TransaccionException("El cliente no está activo", HttpStatus.FORBIDDEN);
+        }
+        if (cuenta.getEstatus() != EstatusCuenta.ACTIVA) {
+            throw new TransaccionException("La cuenta no está activa", HttpStatus.FORBIDDEN);
+        }
+        if (cuenta.getSaldo() == null || cuenta.getSaldo().compareTo(monto) < 0) {
+            throw new TransaccionException("Saldo insuficiente", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        Transaccion tx = new Transaccion();
+        tx.setId(UUID.randomUUID());
+        tx.setClienteId(clienteId);
+        tx.setCuentaId(cuenta.getId());
+        tx.setClaveIdempotencia(clave);
+        tx.setHuellaSolicitud(huella);
+        tx.setUpc(upc);
+        tx.setRandomProveedor("0");
+        tx.setPayloadCifrado("NO_ENVIADO");
+        tx.setMonto(monto);
+        tx.setEstado(EstadoTransaccion.RECHAZADA);
+        tx.setCodigoProveedor(limitar(codigo, 8));
+        tx.setMensajeProveedor(limitar(motivo, 500));
+        tx.setIdProducto(datos.idProducto());
+        tx.setIdServicio(datos.idServicio());
+        tx.setProducto(limitar(datos.producto(), 200));
+        tx.setServicio(limitar(datos.servicio(), 150));
+        tx.setReferencia(datos.referencia());
+        transaccionRepository.saveAndFlush(tx);
+        return new Reserva(tx, false);
+    }
+
+    /** Datos de la cuenta y del cliente que se imprimen en el ticket. */
+    public record InfoTicket(String numeroCuenta, BigDecimal saldoDisponible, String nombreCliente) {
+    }
+
+    @Transactional(readOnly = true)
+    public InfoTicket infoTicket(Integer cuentaId) {
+        return cuentaRepository.findById(cuentaId)
+                .map(c -> new InfoTicket(c.getNumeroCuenta(), c.getSaldo(),
+                        String.join(" ", c.getCliente().getNombre(), c.getCliente().getApellidoPaterno())))
+                .orElse(null);
     }
 
     @Transactional(readOnly = true)

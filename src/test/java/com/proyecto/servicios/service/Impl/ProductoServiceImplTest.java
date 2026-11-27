@@ -36,7 +36,7 @@ class ProductoServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new ProductoServiceImpl(catProductoRepository, productoMapper);
+        service = new ProductoServiceImpl(catProductoRepository, productoMapper, ProductoServiceImpl.URL_IMAGENES_DEFAULT);
     }
 
     @Test
@@ -53,6 +53,7 @@ class ProductoServiceImplTest {
         assertEquals("Agua Cancun", producto.getNombre());
         assertEquals(new BigDecimal("10.0"), producto.getPrecio());
         assertEquals("Leyenda de prueba", producto.getLeyenda());
+        assertEquals("https://gestopago.portalventas.net/sistema/images/gestopago/servicios/56.png", producto.getImagenUrl());
     }
 
     @Test

@@ -22,6 +22,13 @@ public final class Permisos {
     public static final String EJECUTIVO_O_DUENO_DE_LA_CUENTA =
             EJECUTIVO + " or @acceso.esCuentaPropia(#request.numeroCuenta)";
 
+    /** Solo el CLIENTE dueno de la cuenta #request.numeroCuenta (compras: el ejecutivo no compra). */
+    public static final String CLIENTE_DUENO_DE_LA_CUENTA =
+            "hasRole('CLIENTE') and @acceso.esCuentaPropia(#request.numeroCuenta)";
+
+    /** Solo un CLIENTE (NIP de transacciones). */
+    public static final String CLIENTE = "hasRole('CLIENTE')";
+
     /** Un EJECUTIVO, o el CLIENTE que consulta sus propias cuentas (filtro clienteId). */
     public static final String EJECUTIVO_O_CLIENTE_DEL_FILTRO = EJECUTIVO + " or @acceso.esCliente(#filtro.clienteId)";
 

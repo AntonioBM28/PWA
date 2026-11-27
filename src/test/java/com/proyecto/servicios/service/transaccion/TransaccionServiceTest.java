@@ -6,9 +6,9 @@ import com.proyecto.servicios.entity.gestopago.GestoPagoToken;
 import com.proyecto.servicios.entity.mongo.CatProducto;
 import com.proyecto.servicios.entity.onboarding.Transaccion;
 import com.proyecto.servicios.enums.EstadoTransaccion;
-import com.proyecto.servicios.exception.GestoPagoAuthenticationException;
 import com.proyecto.servicios.exception.TransaccionException;
 import com.proyecto.servicios.model.gestopago.GestoPagoTransaccionResponse;
+import com.proyecto.servicios.model.transaccion.TransaccionResponse;
 import com.proyecto.servicios.model.transaccion.CrearTransaccionRequest;
 import com.proyecto.servicios.repositorys.mongo.CatProductoRepository;
 import com.proyecto.servicios.service.GestoPagoTokenService;
@@ -77,7 +77,7 @@ class TransaccionServiceTest {
 
         verify(persistencia).buscarPorClave("1234567890", 9, false, "idempo-123");
         verify(persistencia, never()).reservar(anyString(), any(), anyBoolean(), anyString(), anyString(),
-                anyString(), anyString(), anyString(), any());
+                anyString(), anyString(), anyString(), any(), any());
         verifyNoInteractions(provider);
     }
 
@@ -93,7 +93,7 @@ class TransaccionServiceTest {
         when(cipher.protegerParaAlmacenamiento("provider-encrypted")).thenReturn("local-encrypted");
         Transaccion pending = transaction(EstadoTransaccion.PENDIENTE);
         when(persistencia.reservar(eq("1234567890"), eq(9), eq(false), eq("idempo-123"), anyString(),
-                anyString(), anyString(), eq("local-encrypted"), eq(new BigDecimal("50.00"))))
+                anyString(), anyString(), eq("local-encrypted"), eq(new BigDecimal("50.00")), any()))
                 .thenReturn(new TransaccionPersistenceService.Reserva(pending, false));
         when(provider.enviar(eq("provider-token"), anyString(), eq("provider-encrypted"))).thenReturn("<RESPONSE/>");
         GestoPagoTransaccionResponse response = new GestoPagoTransaccionResponse();
@@ -128,7 +128,7 @@ class TransaccionServiceTest {
         when(cipher.protegerParaAlmacenamiento("provider-encrypted")).thenReturn("local-encrypted");
         Transaccion pending = transaction(EstadoTransaccion.PENDIENTE);
         when(persistencia.reservar(eq("1234567890"), eq(9), eq(false), eq("idempo-123"), anyString(),
-                anyString(), anyString(), eq("local-encrypted"), eq(new BigDecimal("50.00"))))
+                anyString(), anyString(), eq("local-encrypted"), eq(new BigDecimal("50.00")), any()))
                 .thenReturn(new TransaccionPersistenceService.Reserva(pending, false));
         when(provider.enviar(eq("provider-token"), anyString(), eq("provider-encrypted")))
                 .thenThrow(new GestoPagoTransaccionesClient.ProviderCommunicationException());
@@ -306,19 +306,44 @@ class TransaccionServiceTest {
     // unidad no configurada
     // ─────────────────────────────────────────────────────────────
 
+    /** GestoPago no disponible: la operacion se registra RECHAZADA sin cargo y nunca se envia. */
+    private void prepararRechazoSinCargo() {
+        Transaccion rechazada = transaction(EstadoTransaccion.RECHAZADA);
+        rechazada.setMensajeProveedor(TransaccionService.MOTIVO_NO_DISPONIBLE);
+        rechazada.setCodigoProveedor(TransaccionService.CODIGO_NO_DISPONIBLE);
+        rechazada.setIdServicio(71);
+        rechazada.setCuentaId(3);
+        when(persistencia.registrarRechazo(eq("1234567890"), eq(9), eq(false), eq("idempo-123"), anyString(),
+                anyString(), eq(new BigDecimal("50.00")), any(), eq(TransaccionService.CODIGO_NO_DISPONIBLE),
+                eq(TransaccionService.MOTIVO_NO_DISPONIBLE)))
+                .thenReturn(new TransaccionPersistenceService.Reserva(rechazada, false));
+        when(persistencia.infoTicket(3)).thenReturn(new TransaccionPersistenceService.InfoTicket(
+                "1000000009", new BigDecimal("500.00"), "Jose Balderas"));
+    }
+
+    private void verificarRechazoSinCargo(TransaccionResponse result) {
+        assertEquals(EstadoTransaccion.RECHAZADA, result.getEstado());
+        assertEquals(TransaccionService.MOTIVO_NO_DISPONIBLE, result.getMotivo());
+        assertEquals("******0009", result.getNumeroCuenta());
+        assertEquals(new BigDecimal("500.00"), result.getSaldoDisponible());
+        assertEquals("Jose Balderas", result.getNombreCliente());
+        assertTrue(result.getImagenUrl().endsWith("/71.png"));
+        verify(persistencia, never()).reservar(any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any(), any());
+        verifyNoInteractions(provider);
+    }
+
     @Test
-    void rechazaSiUnidadNoEstaConfigurada() {
+    void sinUnidadConfigurada_rechazaSinCargoConTicket() {
         TransaccionService sinUnidad = new TransaccionService(
                 catalogo, persistencia, tokenService, cipher, provider, parser,
                 new ObjectMapper(), "", new BigDecimal("1.00"), new BigDecimal("10000.00"),
                 "America/Mexico_City", 83, "GPS83-TPV-17");
-
         when(catalogo.findById(200)).thenReturn(Optional.of(product));
         when(persistencia.buscarPorClave(anyString(), anyInt(), anyBoolean(), anyString()))
                 .thenReturn(Optional.empty());
+        prepararRechazoSinCargo();
 
-        assertThrows(GestoPagoAuthenticationException.class,
-                () -> sinUnidad.comprar("1234567890", "idempo-123", request, authentication));
+        verificarRechazoSinCargo(sinUnidad.comprar("1234567890", "idempo-123", request, authentication));
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -326,17 +351,14 @@ class TransaccionServiceTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    void lanzaExcepcionSiNoHayTokenDisponibleTrasRenovar() {
+    void sinTokenDeGestoPagoTrasRenovar_rechazaSinCargo() {
         when(catalogo.findById(200)).thenReturn(Optional.of(product));
         when(persistencia.buscarPorClave(anyString(), anyInt(), anyBoolean(), anyString()))
                 .thenReturn(Optional.empty());
-        when(cipher.cifrar(anyMap())).thenReturn("enc");
-        when(cipher.protegerParaAlmacenamiento(anyString())).thenReturn("local-enc");
         when(tokenService.obtenerTokenActivo(83, "GPS83-TPV-17")).thenReturn(Optional.empty());
+        prepararRechazoSinCargo();
 
-        assertThrows(GestoPagoAuthenticationException.class,
-                () -> service.comprar("1234567890", "idempo-123", request, authentication));
-
+        verificarRechazoSinCargo(service.comprar("1234567890", "idempo-123", request, authentication));
         verify(tokenService, times(1)).renovarToken();
     }
 
@@ -345,18 +367,29 @@ class TransaccionServiceTest {
         when(catalogo.findById(200)).thenReturn(Optional.of(product));
         when(persistencia.buscarPorClave(anyString(), anyInt(), anyBoolean(), anyString()))
                 .thenReturn(Optional.empty());
-        when(cipher.cifrar(anyMap())).thenReturn("enc");
-        when(cipher.protegerParaAlmacenamiento(anyString())).thenReturn("local-enc");
-
         GestoPagoToken inactivo = new GestoPagoToken();
         inactivo.setToken("viejo");
         inactivo.setActivo(false);
         when(tokenService.obtenerTokenActivo(83, "GPS83-TPV-17")).thenReturn(Optional.of(inactivo));
+        prepararRechazoSinCargo();
 
-        assertThrows(GestoPagoAuthenticationException.class,
-                () -> service.comprar("1234567890", "idempo-123", request, authentication));
-
+        verificarRechazoSinCargo(service.comprar("1234567890", "idempo-123", request, authentication));
         verify(tokenService).renovarToken();
+    }
+
+    @Test
+    void falloAlCifrar_rechazaSinCargo() {
+        when(catalogo.findById(200)).thenReturn(Optional.of(product));
+        when(persistencia.buscarPorClave(anyString(), anyInt(), anyBoolean(), anyString()))
+                .thenReturn(Optional.empty());
+        GestoPagoToken token = new GestoPagoToken();
+        token.setToken("provider-token");
+        token.setActivo(true);
+        when(tokenService.obtenerTokenActivo(83, "GPS83-TPV-17")).thenReturn(Optional.of(token));
+        when(cipher.cifrar(anyMap())).thenThrow(new IllegalStateException("sin llave"));
+        prepararRechazoSinCargo();
+
+        verificarRechazoSinCargo(service.comprar("1234567890", "idempo-123", request, authentication));
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -374,7 +407,7 @@ class TransaccionServiceTest {
         when(tokenService.obtenerTokenActivo(83, "GPS83-TPV-17")).thenReturn(Optional.of(token));
         when(cipher.cifrar(anyMap())).thenReturn("enc");
         when(cipher.protegerParaAlmacenamiento("enc")).thenReturn("local-enc");
-        when(persistencia.reservar(any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()))
+        when(persistencia.reservar(any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(new TransaccionPersistenceService.Reserva(existente, true));
 
         var result = service.comprar("1234567890", "idempo-123", request, authentication);
@@ -727,7 +760,7 @@ class TransaccionServiceTest {
         when(tokenService.obtenerTokenActivo(83, "GPS83-TPV-17")).thenReturn(Optional.of(token));
         when(cipher.cifrar(anyMap())).thenReturn("enc");
         when(cipher.protegerParaAlmacenamiento("enc")).thenReturn("local-enc");
-        when(persistencia.reservar(any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()))
+        when(persistencia.reservar(any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(new TransaccionPersistenceService.Reserva(pending, false));
     }
 
