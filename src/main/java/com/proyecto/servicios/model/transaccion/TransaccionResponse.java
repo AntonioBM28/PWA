@@ -28,4 +28,22 @@ public class TransaccionResponse extends GenericResponse {
     private String folio;
     private String leyenda;
     private OffsetDateTime fechaCreacion;
+
+    // ----- Datos para el ticket -----
+    /** Motivo legible del resultado (por ejemplo, por que se rechazo). */
+    private String motivo;
+    private Integer idProducto;
+    private Integer idServicio;
+    private String producto;
+    private String servicio;
+    private String imagenUrl;
+    /** Telefono o referencia enmascarada. */
+    private String referencia;
+    /** Cuenta enmascarada (******0009). */
+    private String numeroCuenta;
+    /** Saldo disponible despues de la operacion. */
+    private BigDecimal saldoDisponible;
+    private String nombreCliente;
+    /** Referencia de la operacion ante GestoPago. */
+    private String upc;
 }

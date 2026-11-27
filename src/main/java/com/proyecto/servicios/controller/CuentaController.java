@@ -1,5 +1,7 @@
 package com.proyecto.servicios.controller;
 
+import com.proyecto.servicios.model.onboarding.AbonoSaldoRequest;
+import com.proyecto.servicios.model.onboarding.AbonoSaldoResponse;
 import com.proyecto.servicios.model.onboarding.ActualizaCuentaRequest;
 import com.proyecto.servicios.model.onboarding.CrearCuentaRequest;
 import com.proyecto.servicios.model.onboarding.CuentaDetalleResponse;
@@ -8,6 +10,8 @@ import com.proyecto.servicios.model.onboarding.CuentasResponse;
 import com.proyecto.servicios.model.onboarding.NumeroCuentaRequest;
 import com.proyecto.servicios.model.onboarding.SaldoResponse;
 import com.proyecto.servicios.security.Permisos;
+import com.proyecto.servicios.security.TokenService;
+import com.proyecto.servicios.service.AbonoSaldoService;
 import com.proyecto.servicios.service.CuentaService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -15,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,9 +33,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class CuentaController {
 
     private final CuentaService cuentaService;
+    private final AbonoSaldoService abonoSaldoService;
 
-    public CuentaController(CuentaService cuentaService) {
+    public CuentaController(CuentaService cuentaService, AbonoSaldoService abonoSaldoService) {
         this.cuentaService = cuentaService;
+        this.abonoSaldoService = abonoSaldoService;
+    }
+
+    @Operation(summary = "Abonar saldo a una cuenta (EJECUTIVO)",
+            description = "Unica forma de aumentar el saldo con el que el cliente compra productos. Monto de $1.00 a "
+                    + "$50,000.00 por abono; la cuenta y el cliente deben estar activos. Queda registrado quien "
+                    + "hizo el abono y el saldo antes y despues")
+    @PreAuthorize(Permisos.EJECUTIVO)
+    @PostMapping(value = "/cuentas/abonos", produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AbonoSaldoResponse> abonarSaldo(@Valid @RequestBody AbonoSaldoRequest request,
+                                                          JwtAuthenticationToken autenticacion) {
+        String ejecutivo = autenticacion.getToken().getClaimAsString(TokenService.CLAIM_CORREO);
+        return new ResponseEntity<>(abonoSaldoService.abonar(request, ejecutivo), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Consultar el detalle de una cuenta",

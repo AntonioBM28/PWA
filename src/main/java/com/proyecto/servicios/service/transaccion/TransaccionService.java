@@ -7,12 +7,15 @@ import com.proyecto.servicios.entity.mongo.CatProducto;
 import com.proyecto.servicios.entity.onboarding.Transaccion;
 import com.proyecto.servicios.enums.EstadoTransaccion;
 import com.proyecto.servicios.exception.GestoPagoAuthenticationException;
+import com.proyecto.servicios.exception.GestoPagoIntegrationException;
 import com.proyecto.servicios.exception.TransaccionException;
 import com.proyecto.servicios.model.gestopago.GestoPagoTransaccionResponse;
 import com.proyecto.servicios.model.transaccion.CrearTransaccionRequest;
+import com.proyecto.servicios.model.transaccion.DatosCompra;
 import com.proyecto.servicios.model.transaccion.TransaccionResponse;
 import com.proyecto.servicios.repositorys.mongo.CatProductoRepository;
 import com.proyecto.servicios.service.GestoPagoTokenService;
+import com.proyecto.servicios.service.Impl.ProductoServiceImpl;
 import com.proyecto.servicios.service.gestopago.GestoPagoPayloadCipher;
 import com.proyecto.servicios.service.gestopago.GestoPagoTransaccionXmlParser;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +44,9 @@ public class TransaccionService {
     private static final String TELEFONO_SERVICIO = "1111111111";
     static final int CODIGO_EXITO = 0;
     static final int CODIGO_RECHAZO = 1;
+    static final String CODIGO_NO_DISPONIBLE = "GP-NODIS";
+    static final String MOTIVO_NO_DISPONIBLE =
+            "El servicio de GestoPago no está disponible en este momento. No se realizó ningún cargo a tu cuenta";
 
     private final CatProductoRepository catalogo;
     private final TransaccionPersistenceService persistencia;
@@ -55,6 +61,10 @@ public class TransaccionService {
     private final ZoneId zonaHoraria;
     private final Integer idDistribuidor;
     private final String codigoDispositivo;
+
+    /** Imagenes de los servicios publicadas por GestoPago (para el ticket). */
+    @Value("${gestopago.imagenes.url-base:" + ProductoServiceImpl.URL_IMAGENES_DEFAULT + "}")
+    private String urlImagenes = ProductoServiceImpl.URL_IMAGENES_DEFAULT;
 
     public TransaccionService(CatProductoRepository catalogo,
                               TransaccionPersistenceService persistencia,
@@ -101,23 +111,34 @@ public class TransaccionService {
             return respuesta(anterior.get());
         }
 
-        CatProducto producto = catalogo.findById(request.getIdProducto())
-                .orElseThrow(() -> new TransaccionException("El producto no existe en el catálogo vigente", HttpStatus.UNPROCESSABLE_ENTITY));
-        if (!request.getIdServicio().equals(producto.getIdServicio())) {
-            throw new TransaccionException("El producto no corresponde al servicio indicado", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        validarProductoYMonto(producto, request);
-        if (unidad == null || unidad.length() < 3 || unidad.length() > 25) {
-            throw new GestoPagoAuthenticationException("La unidad de GestoPago no está configurada");
-        }
-
-        String token = resolverToken();
+        CatProducto producto = validarCompra(request);
         String upc = crearUpc();
+        var datos = new TransaccionPersistenceService.DatosOperacion(producto.getIdProducto(), producto.getIdServicio(),
+                producto.getNombre(), producto.getServicio(),
+                enmascarar(StringUtils.defaultIfBlank(request.getDestino(), request.getReferencia())));
+
+        // Preparar el envio (unidad, token y cifrado de GestoPago). Si falla, la solicitud nunca sale:
+        // la operacion se registra RECHAZADA sin descontar saldo y se devuelve su ticket.
+        String token;
+        String signed;
+        String payloadPersistido;
+        try {
+            if (unidad == null || unidad.length() < 3 || unidad.length() > 25) {
+                throw new GestoPagoAuthenticationException("La unidad de GestoPago no está configurada");
+            }
+            token = resolverToken();
+            signed = cipher.cifrar(payload(producto, request, upc));
+            payloadPersistido = cipher.protegerParaAlmacenamiento(signed);
+        } catch (GestoPagoIntegrationException | IllegalStateException ex) {
+            log.warn("GestoPago no disponible; operacion rechazada sin cargo: tipo={}", ex.getClass().getSimpleName());
+            var rechazo = persistencia.registrarRechazo(numeroCuenta, clienteAutenticado, ejecutivo, idempotencyKey,
+                    huella, upc, request.getMonto(), datos, CODIGO_NO_DISPONIBLE, MOTIVO_NO_DISPONIBLE);
+            return respuesta(rechazo.transaccion());
+        }
         String random = Long.toString(System.currentTimeMillis());
-        String signed = cipher.cifrar(payload(producto, request, upc));
-        String payloadPersistido = cipher.protegerParaAlmacenamiento(signed);
         TransaccionPersistenceService.Reserva reserva = persistencia.reservar(
-                numeroCuenta, clienteAutenticado, ejecutivo, idempotencyKey, huella, upc, random, payloadPersistido, request.getMonto());
+                numeroCuenta, clienteAutenticado, ejecutivo, idempotencyKey, huella, upc, random, payloadPersistido,
+                request.getMonto(), datos);
         if (reserva.repetida()) return respuesta(reserva.transaccion());
 
         Transaccion tx = reserva.transaccion();
@@ -216,7 +237,7 @@ public class TransaccionService {
         return token.orElseThrow(() -> new GestoPagoAuthenticationException("No hay token de GestoPago disponible"));
     }
 
-    private void validarProductoYMonto(CatProducto producto, CrearTransaccionRequest request) {
+    private void validarProductoYMonto(CatProducto producto, DatosCompra request) {
         if (producto.getTipoFront() == null || (producto.getTipoFront() != 1 && producto.getTipoFront() != 2)) {
             throw new TransaccionException("El tipo de producto requiere un flujo de pago especializado", HttpStatus.UNPROCESSABLE_ENTITY);
         }
@@ -256,7 +277,16 @@ public class TransaccionService {
         return data;
     }
 
-    private static TransaccionResponse respuesta(Transaccion tx) {
+    /** 5512345678 -> ******5678. En el historial solo se muestran los ultimos 4 caracteres. */
+    static String enmascarar(String referencia) {
+        String valor = StringUtils.trimToNull(referencia);
+        if (valor == null) return null;
+        int visibles = Math.min(4, valor.length());
+        String oculto = "*".repeat(Math.min(16, valor.length() - visibles));
+        return oculto + valor.substring(valor.length() - visibles);
+    }
+
+    static TransaccionResponse respuestaBase(Transaccion tx) {
         String mensaje = switch (tx.getEstado()) {
             case APROBADA -> "Operación aprobada";
             case RECHAZADA -> "Operación rechazada; el saldo fue liberado";
@@ -275,10 +305,47 @@ public class TransaccionService {
         response.setFolio(tx.getFolio());
         response.setLeyenda(tx.getLeyenda());
         response.setFechaCreacion(tx.getFechaCreacion());
+        response.setIdProducto(tx.getIdProducto());
+        response.setIdServicio(tx.getIdServicio());
+        response.setProducto(tx.getProducto());
+        response.setServicio(tx.getServicio());
+        response.setReferencia(tx.getReferencia());
+        response.setUpc(tx.getUpc());
+        // Los mensajes de conciliacion son internos; solo se muestra el motivo de un rechazo
+        if (tx.getEstado() == EstadoTransaccion.RECHAZADA) response.setMotivo(tx.getMensajeProveedor());
         return response;
     }
 
-    private String huella(String cuenta, CrearTransaccionRequest request) {
+    /** Respuesta con los datos del ticket: imagen del servicio, cuenta enmascarada y saldo disponible. */
+    private TransaccionResponse respuesta(Transaccion tx) {
+        TransaccionResponse response = respuestaBase(tx);
+        if (tx.getIdServicio() != null) response.setImagenUrl(urlImagenes + tx.getIdServicio() + ".png");
+        if (tx.getCuentaId() != null) {
+            TransaccionPersistenceService.InfoTicket info = persistencia.infoTicket(tx.getCuentaId());
+            if (info != null) {
+                response.setNumeroCuenta(enmascarar(info.numeroCuenta()));
+                response.setSaldoDisponible(info.saldoDisponible());
+                response.setNombreCliente(info.nombreCliente());
+            }
+        }
+        return response;
+    }
+
+    /**
+     * Valida que el producto exista en el catalogo vigente y que el monto, el destino y la
+     * referencia sean correctos para ese producto. Se usa al pedir el token y al comprar.
+     */
+    public CatProducto validarCompra(DatosCompra request) {
+        CatProducto producto = catalogo.findById(request.getIdProducto())
+                .orElseThrow(() -> new TransaccionException("El producto no existe en el catálogo vigente", HttpStatus.UNPROCESSABLE_ENTITY));
+        if (!request.getIdServicio().equals(producto.getIdServicio())) {
+            throw new TransaccionException("El producto no corresponde al servicio indicado", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        validarProductoYMonto(producto, request);
+        return producto;
+    }
+
+    public String huella(String cuenta, DatosCompra request) {
         try {
             Map<String, Object> canonical = new LinkedHashMap<>();
             canonical.put("cuenta", cuenta);

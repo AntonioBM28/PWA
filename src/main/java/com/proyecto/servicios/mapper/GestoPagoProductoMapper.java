@@ -16,6 +16,7 @@ public interface GestoPagoProductoMapper {
     @Mapping(target = "leyenda", source = "producto.legend")
     CatProducto toDocument(GestoPagoProducto producto, Instant fechaActualizacion);
 
+    @Mapping(target = "imagenUrl", ignore = true)
     ProductoResponse toResponse(CatProducto producto);
 
     List<ProductoResponse> toResponseList(List<CatProducto> productos);
