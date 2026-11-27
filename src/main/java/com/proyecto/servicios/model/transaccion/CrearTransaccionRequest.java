@@ -1,42 +1,27 @@
 package com.proyecto.servicios.model.transaccion;
 
-import com.proyecto.servicios.validation.Patrones;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-import java.math.BigDecimal;
+import java.util.UUID;
 
+/** Ejecuta una compra autorizada con el token dinamico de POST /transacciones/autorizacion. */
 @Getter
 @Setter
-public class CrearTransaccionRequest {
+@ToString(exclude = "tokenDinamico")
+public class CrearTransaccionRequest extends DatosCompra {
 
-    /** Cuenta que paga la operacion; un CLIENTE solo puede usar una cuenta propia. */
-    @NotBlank(message = "El numero de cuenta es obligatorio")
-    @Pattern(regexp = Patrones.NUMERO_CUENTA, message = Patrones.MENSAJE_NUMERO_CUENTA)
-    private String numeroCuenta;
+    @Schema(description = "autorizacionId devuelto por POST /transacciones/autorizacion")
+    @NotNull(message = "La autorizacion es obligatoria; primero confirma la operacion con tu NIP")
+    private UUID autorizacionId;
 
-    @NotNull
-    private Integer idServicio;
-
-    @NotNull
-    private Integer idProducto;
-
-    /** Teléfono o referencia según el tipo de producto del catálogo. */
-    @Size(max = 100)
-    private String destino;
-
-    /** Requerida para recibos/servicios; el catálogo decide si se envía. */
-    @Size(max = 100)
-    private String referencia;
-
-    @NotNull
-    @DecimalMin(value = "0.01")
-    @Digits(integer = 13, fraction = 2)
-    private BigDecimal monto;
+    @Schema(description = "Token dinamico de 8 digitos", example = "48213907")
+    @NotBlank(message = "El token dinamico es obligatorio")
+    @Pattern(regexp = "^[0-9]{8}$", message = "El token dinamico debe tener 8 digitos")
+    private String tokenDinamico;
 }

@@ -21,4 +21,6 @@ public class ProductoResponse {
     private Boolean showAyuda;
     private String tipoReferencia;
     private String leyenda;
+    /** Imagen del servicio publicada por GestoPago (algunos servicios no tienen imagen). */
+    private String imagenUrl;
 }

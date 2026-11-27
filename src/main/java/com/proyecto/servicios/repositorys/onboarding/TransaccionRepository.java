@@ -3,6 +3,7 @@ package com.proyecto.servicios.repositorys.onboarding;
 import com.proyecto.servicios.entity.onboarding.Transaccion;
 import com.proyecto.servicios.enums.EstadoTransaccion;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 
 import java.time.OffsetDateTime;
@@ -13,7 +14,7 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Query;
 
-public interface TransaccionRepository extends JpaRepository<Transaccion, UUID> {
+public interface TransaccionRepository extends JpaRepository<Transaccion, UUID>, JpaSpecificationExecutor<Transaccion> {
     Optional<Transaccion> findByClienteIdAndClaveIdempotencia(Integer clienteId, String claveIdempotencia);
     Optional<Transaccion> findByIdAndClienteId(UUID id, Integer clienteId);
     List<Transaccion> findTop100ByEstadoAndFechaCreacionBetweenOrderByFechaCreacionAsc(

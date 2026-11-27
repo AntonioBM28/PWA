@@ -72,6 +72,23 @@ public class Transaccion {
     @Column(name = "leyenda", length = 5000)
     private String leyenda;
 
+    // ----- Que se compro (para el historial; null en transacciones anteriores a V11) -----
+    @Column(name = "id_producto", updatable = false)
+    private Integer idProducto;
+
+    @Column(name = "id_servicio", updatable = false)
+    private Integer idServicio;
+
+    @Column(name = "producto", length = 200, updatable = false)
+    private String producto;
+
+    @Column(name = "servicio", length = 150, updatable = false)
+    private String servicio;
+
+    /** Telefono o referencia enmascarada (solo los ultimos 4 caracteres visibles). */
+    @Column(name = "referencia", length = 20, updatable = false)
+    private String referencia;
+
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private OffsetDateTime fechaCreacion;
 
